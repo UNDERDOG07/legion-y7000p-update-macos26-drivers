@@ -31,14 +31,14 @@ What it does not cover: how to install macOS.
 | RTX 5060 | ✅ | Metal 3; internal panel does 240 Hz alone | [docs/gpu.md](docs/gpu.md) |
 | Audio | ✅ | Speakers and mic; SimpleHDA + `layout-id 99` | [docs/audio.md](docs/audio.md) |
 | Trackpad | ✅ | VoodooI2CHID | [docs/input.md](docs/input.md) |
-| Keyboard | ✅ | modifier mapping needed | [docs/input.md](docs/input.md) |
+| Keyboard | ✅ | no remapping needed | [docs/input.md](docs/input.md) |
 | Wi-Fi | ✅ | 802.11ac / 80 MHz / 867 Mbps | [docs/wireless.md](docs/wireless.md) |
-| Bluetooth | ⚠️ | connects; some BLE devices are flaky | [docs/wireless.md](docs/wireless.md) |
+| Bluetooth | ⚠️ | controllers and headphones work; other device types do not | [docs/wireless.md](docs/wireless.md) |
 | Camera | ✅ | UVC, enumerates and captures | [docs/permissions.md](docs/permissions.md) |
 | Battery | ✅ | needs SMCBatteryManager + YogaSMC | [docs/power.md](docs/power.md) |
 | CPU topology | ✅ | 8 physical / 32 logical via `ctrsmt=full` | [docs/power.md](docs/power.md) |
 | CPU name | ✅ | needs `revpatch=...,cpuname` | [docs/power.md](docs/power.md) |
-| Brightness | ⚠️ | works alone, dead while mirroring | [docs/power.md](docs/power.md) |
+| Brightness | ✅ | built into 1401.app; no effect while mirroring | [docs/power.md](docs/power.md) |
 | Privacy prompts | ⚠️ | never appear; grants must be written by hand | [docs/permissions.md](docs/permissions.md) |
 | Delta updates | ✅ | needs `revpatch=sbvmm` | [docs/updates.md](docs/updates.md) |
 | Sleep | ❌ | GPU does not come back | [docs/limits.md](docs/limits.md) |
@@ -75,11 +75,38 @@ verified as necessary from the ones that are simply carried over from the driver
 
 ## Companion tools
 
-- **1401** — builds the boot stick and installs the NVIDIA driver. The actual source of both the EFI
-  and the driver.
+- **1401** — builds the boot stick, installs the NVIDIA driver, and provides the internal-panel
+  brightness control. The actual source of both the EFI and the driver.
 - **tccgrant** — the finished form of the script in [docs/permissions.md](docs/permissions.md), for
   granting permissions that the system refuses to ask about.
-- **br** — sets internal-panel brightness through the private `DisplayServices` framework.
+
+## EFI
+
+`EFI/` is the configuration this machine is **currently running**, copied straight off the stick and
+sanitised.
+
+Compared with the older repo's copy, the differences are in `boot-args` (`revpatch=sbvmm,cpuname`,
+`-ibtcompatbeta`, `amfi=0x80`), the kext versions, and the SMBIOS block.
+
+**The identity fields are placeholders. Generate your own before using it:**
+
+| Field | Current value |
+|---|---|
+| `SystemSerialNumber` | `C02XXXXXXXXX` |
+| `MLB` | `C02XXXXXXXXXXXXXX` |
+| `SystemUUID` | `00000000-0000-0000-0000-000000000000` |
+| `ROM` | `112233445566` |
+
+It will boot like this, but About This Mac shows Unknown and iServices will not work. Generate a pair
+for `MacBookPro16,4` with GenSMBIOS — **the last four characters must be `MD6T`**, see
+[docs/smbios.md](docs/smbios.md) for why.
+
+The seventeen historical config backups that came with the stick (all carrying the real serial) are not
+included. Only the current configuration is here.
+
+One detail kept as-is: `Misc → Boot → HideAuxiliary` is `false` in this file, because `1401.app` reset
+it during its last settings change. The effect is two extra `1401:` entries in the picker. How to hide
+them again is in [docs/gpu.md](docs/gpu.md) — this is exactly the rewrite behaviour described there.
 
 ## The older repo
 

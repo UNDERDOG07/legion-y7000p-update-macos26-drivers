@@ -67,39 +67,16 @@ regression. It was not — the SMBIOS table had the correct string all along.
 
 ## Brightness
 
-There is no `AppleBacklightDisplay` on this machine, so the normal brightness path does not exist. What
-works is the private `DisplayServices` framework:
+`1401.app` includes a brightness control for the internal panel. Turn it on there and the slider works
+normally afterwards; nothing needs to be configured on the macOS side.
 
-```python
-DisplayServicesSetBrightness(CGMainDisplayID(), 0.5)
-```
+That control exists because macOS has no `AppleBacklightDisplay` on this machine — the platform
+brightness path is absent altogether, and without something supplying it the panel sits at whatever the
+driver set during initialisation.
 
-Two caveats.
-
-**Mirroring disables it.** With an external display mirrored, the internal panel is a hardware mirror:
-`DisplayServicesGetBrightness` reads back 0 and writes are ignored. Unplug the external display and it
-comes back. That is the compositor, not the GPU driver.
-
-**Every boot starts at 100%.** The driver sets full brightness at init and macOS has no stored value to
-restore. A LaunchAgent applies 50% six and sixteen seconds after login:
-
-```
-~/Library/LaunchAgents/com.user.brightness.plist
-```
-
-Two applications, because the driver occasionally initialises after the first one has already run.
-
-The `br` helper does the same from a terminal:
-
-```bash
-br        # read current
-br 50     # set 50%
-br up     # +10%
-br down   # -10%
-```
-
-It picks the built-in display by `CGDisplayIsBuiltin` rather than by "main display". That matters once
-an external monitor is attached, because the main display in that case has no backlight to set.
+One limitation worth knowing: with an external display mirrored, the control has no effect on the
+internal panel, because the panel is a hardware mirror at that point. Unplug the external display and it
+works again.
 
 ## Sleep
 

@@ -28,14 +28,14 @@
 | RTX 5060 | ✅ | Metal 3；单屏时内屏可上 240 Hz | [docs/gpu.md](docs/gpu.md) |
 | 音频 | ✅ | 扬声器与麦克风；SimpleHDA + `layout-id 99` | [docs/audio.md](docs/audio.md) |
 | 触控板 | ✅ | VoodooI2CHID | [docs/input.md](docs/input.md) |
-| 键盘 | ✅ | 需要映射修饰键 | [docs/input.md](docs/input.md) |
+| 键盘 | ✅ | 无需任何映射 | [docs/input.md](docs/input.md) |
 | Wi-Fi | ✅ | 802.11ac / 80 MHz / 867 Mbps | [docs/wireless.md](docs/wireless.md) |
-| 蓝牙 | ⚠️ | 能连；部分 BLE 设备不稳 | [docs/wireless.md](docs/wireless.md) |
+| 蓝牙 | ⚠️ | 手柄与耳机正常，其他类型设备连不上 | [docs/wireless.md](docs/wireless.md) |
 | 摄像头 | ✅ | UVC，可枚举可抓帧 | [docs/permissions.md](docs/permissions.md) |
 | 电池 | ✅ | 需要 SMCBatteryManager + YogaSMC | [docs/power.md](docs/power.md) |
 | CPU 拓扑 | ✅ | 8 物理 / 32 逻辑，`ctrsmt=full` | [docs/power.md](docs/power.md) |
 | CPU 名称 | ✅ | 需要 `revpatch=...,cpuname` | [docs/power.md](docs/power.md) |
-| 屏幕亮度 | ⚠️ | 单屏可用，镜像时失效 | [docs/power.md](docs/power.md) |
+| 屏幕亮度 | ✅ | 1401 内置控制；镜像时无效 | [docs/power.md](docs/power.md) |
 | 隐私授权 | ⚠️ | 不弹窗，只能手动写库 | [docs/permissions.md](docs/permissions.md) |
 | 增量更新 | ✅ | 需要 `revpatch=sbvmm` | [docs/updates.md](docs/updates.md) |
 | 睡眠 | ❌ | 唤醒后显卡回不来 | [docs/limits.md](docs/limits.md) |
@@ -79,9 +79,29 @@ itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
 
 ## 配套工具
 
-- **1401** —— 做引导盘、装 NVIDIA 驱动。EFI 和驱动的实际来源。
+- **1401** —— 做引导盘、装 NVIDIA 驱动、提供内屏亮度控制。EFI 和驱动的实际来源。
 - **tccgrant** —— [docs/permissions.md](docs/permissions.md) 里那段脚本的最终形态，用来给系统拒绝询问的 App 补授权。
-- **br** —— 通过私有的 `DisplayServices` 框架调内屏亮度。
+
+## EFI
+
+`EFI/` 是这台机器**当前在用**的配置，直接从 U 盘复制，只做了脱敏。
+
+和旧仓库那份相比，主要差别在启动参数（`revpatch=sbvmm,cpuname`、`-ibtcompatbeta`、`amfi=0x80` 等）、kext 版本，以及 SMBIOS。
+
+**三码是占位符，用之前必须自己生成：**
+
+| 字段 | 当前值 |
+|---|---|
+| `SystemSerialNumber` | `C02XXXXXXXXX` |
+| `MLB` | `C02XXXXXXXXXXXXXX` |
+| `SystemUUID` | `00000000-0000-0000-0000-000000000000` |
+| `ROM` | `112233445566` |
+
+这样能开机，但「关于本机」会显示 Unknown，iServices 也用不了。用 GenSMBIOS 按 `MacBookPro16,4` 生成，**末四位必须是 `MD6T`** —— 原因见 [docs/smbios.md](docs/smbios.md)。
+
+原有的 17 份历史配置备份（都带真实序列号）已从仓库中移除，只保留当前这一份。
+
+一个如实保留的细节：这份 `config.plist` 里 `Misc → Boot → HideAuxiliary` 是 `false`，因为 `1401.app` 最后一次改设置时把它重置了。后果是 picker 里会多出两个 `1401:` 开头的条目。想隐藏回去，改法见 [docs/gpu.md](docs/gpu.md) —— 这正是那篇里提到的「App 会重写 config」实例。
 
 ## 上一版
 

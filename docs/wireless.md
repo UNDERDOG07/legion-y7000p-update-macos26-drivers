@@ -88,9 +88,16 @@ IOUSBHostDevice: setConfigurationGated: IntelBluetoothFirmware selected configur
 A `kernelmanager_helper: Could not find identifier (com.zxystd.IntelBluetoothFirmware)` line is normal
 for an injected kext and is not an error.
 
-### Known weaknesses
+### What connects, and what does not
 
-- Some BLE peripherals pair and then drop.
-- 2.4 GHz coexistence matters on this chassis — both antennas are in the lid, so a busy Wi-Fi link
-  hurts Bluetooth range.
-- Handoff and Continuity do not work, for the same AWDL reason as AirDrop.
+Controllers and headphones work. Other classes of device do not — pairing either fails outright or the
+device drops straight after pairing.
+
+That split matters, because "Bluetooth works" on its own is misleading. Two of the most common
+peripheral types are fine, and most of the rest of the category is not. A controller (GameSir G7 Pro)
+and headphones are what this machine is actually used with, and both are stable.
+
+2.4 GHz coexistence is a factor too — both antennas are in the lid, so a busy Wi-Fi link hurts
+Bluetooth range.
+
+Handoff and Continuity do not work, for the same AWDL reason as AirDrop.

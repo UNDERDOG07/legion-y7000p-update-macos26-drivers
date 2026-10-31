@@ -12,17 +12,19 @@ Two keyboards, handled differently.
 The external board is a Windows-layout keyboard, so the modifiers sit one position off from a Mac
 keyboard: `Ctrl / Win / Alt` where macOS expects `Ctrl / Option / Command`.
 
-### Remapping the modifiers
+### Modifiers
 
-`hidutil property --get UserKeyMapping` returns `null` on this machine, which means the swap is not
-happening at the HID layer. It is done in System Settings:
+Nothing needs remapping. Both keyboards send the modifiers where macOS expects them, and
+`hidutil property --get UserKeyMapping` returns `null` — that is the correct state here, not a missing
+configuration.
 
-> System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys
+This is worth stating plainly, because swapping Option and Command is the first thing most people do on
+a Windows keyboard, and on this machine it would be a regression. The external board's `Win` key
+behaves as Command and `Alt` as Option without any change.
 
-The dropdown at the top right lists each keyboard separately. That matters here: the internal keyboard
-can stay as-is while the external one gets `Option → Command` and `Command → Option`.
-
-This is the right tool for this problem. It survives updates, needs no login item, and is per-device.
+If you do end up with a board that needs the swap, **System Settings → Keyboard → Keyboard Shortcuts →
+Modifier Keys** has a panel that lists each keyboard separately. It is the better option when it is
+needed, since it survives updates and needs no login item.
 
 `hidutil` is the alternative when the panel cannot express what you want — mapping Caps Lock to
 Control, for instance, or applying a rule to one vendor/product ID only:
