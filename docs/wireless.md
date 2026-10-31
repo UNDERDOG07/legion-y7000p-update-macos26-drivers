@@ -6,17 +6,22 @@
 
 | 项 | 值 |
 |---|---|
-| 网卡 | Intel AX1690i，`8086:1692` |
+| 网卡 | Intel AX1690i（后换的卡），`8086:1692` |
 | 驱动 | [`AirportItlwm.kext`](https://github.com/laobamac/itlwm) 2.4.0（**fork**） |
 | 固件 | `itlwm: 2.4.0_738d4c6 fw: 68.01d30b0c.0` |
 | 启动参数 | `itlwm_he=1` |
 | 接口 | `en0` |
 
-网卡是 Intel **AX1690i**，PCI ID `8086:1692`，原装，没换过。
+网卡是 **Intel AX1690i**，**自己换上去的**，替换了原厂的 CNVi 模块。PCI ID `8086:1692`。
 
-旧笔记记的是 `8086:7A70`，还写着「机主自己换的卡」—— 两处都不对。型号一直是 AX1690i，`1692` 就是它的 PCI ID；`7A70` 大概是从别的 CNVi 型号抄来的。旧记录那一行整体忽略。
+旧笔记那句「fitted by the owner as a replacement for the factory card」是对的。但同一行的 ID 写的 `8086:7A70`，和这块卡对不上——AX1690i 是 `1692`。那一格大概是原厂卡留下的，或者抄错了，不用管它。
 
-**Wi-Fi 能用不是硬件的事，是换了驱动。** 旧配置用的是 `itlwm.kext`，新配置换成 `AirportItlwm.kext`：
+**这台机器能上 Wi-Fi，是两件事叠起来的**：
+
+1. **换了卡** —— 原厂那块不在驱动支持范围内，换成 AX1690i
+2. **换了驱动** —— 旧配置用 `itlwm.kext`，新配置用 `AirportItlwm.kext`
+
+两者的差别在这儿：
 
 | | `itlwm` | `AirportItlwm` |
 |---|---|---|
@@ -24,7 +29,7 @@
 | 系统 Wi-Fi 菜单 | 没有 | 有 |
 | 扫描 / 关联 | 靠 HeliPort 之类的私有工具 | 系统自己处理 |
 
-旧笔记里那条「Wi-Fi ❌ 驱动不存在」，记录的就是 `itlwm` 时代的状态。换成 `AirportItlwm` 之后才成为一台「有 Wi-Fi 的 Mac」。
+旧笔记里那条「Wi-Fi ❌ 驱动不存在」，是换卡之前、`itlwm` 时代的状态。
 
 上游 [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) 只到 **v2.3.0（2024-06）**，不支持 macOS 26。本机的 2.4.0 来自 [laobamac/itlwm](https://github.com/laobamac/itlwm) 的 `v2.4.0-alpha`，bundle identifier 仍是 `com.zxystd.AirportItlwm`。**直接下上游 2.3.0 是装不上的**，对照见 [sources.md](sources.md)。
 

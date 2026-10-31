@@ -29,7 +29,7 @@
 | 音频 | ✅ | SimpleHDA 补回 AppleHDA，AppleALC + `layout-id 99` 才能接管 | [docs/audio.md](docs/audio.md) |
 | 触控板 | ✅ | VoodooI2CHID，VoodooInput 用 VoodooPS2 那份 | [docs/input.md](docs/input.md) |
 | 键盘 | ✅ | 无需任何映射 | [docs/input.md](docs/input.md) |
-| Wi-Fi | ✅ | AX1690i，`itlwm` 换成 `AirportItlwm` 后才作数 | [docs/wireless.md](docs/wireless.md) |
+| Wi-Fi | ✅ | AX1690i（自己换的卡）+ `AirportItlwm` | [docs/wireless.md](docs/wireless.md) |
 | 蓝牙 | ⚠️ | 手柄与耳机正常，其他类型设备连不上 | [docs/wireless.md](docs/wireless.md) |
 | 摄像头 | ✅ | UVC，可枚举可抓帧 | [docs/permissions.md](docs/permissions.md) |
 | 电池 | ✅ | 需要 SMCBatteryManager + YogaSMC | [docs/power.md](docs/power.md) |
