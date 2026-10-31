@@ -1,0 +1,39 @@
+{
+  "arch" : "blackwell",
+  "battery_installed_reported" : true,
+  "battery_service_present" : true,
+  "battery_service_source" : "AppleSmartBattery registry service",
+  "chassis" : "laptop",
+  "chassis_identity_origin" : "kernel-visible service; firmware or driver properties may be injected",
+  "chassis_status" : "battery service reports installed battery",
+  "cpu" : "Intel(R) Core(TM) i9-14900HX",
+  "cpu_vendor" : "intel",
+  "egpu" : false,
+  "gpu_candidates" : [
+    {
+      "device" : "A788",
+      "identity_source" : "live_registry",
+      "model" : "",
+      "registry_path" : "IOService:\/AppleACPIPlatformExpert\/PC00\/AppleACPIPCI\/GFX0@2",
+      "subsystem_device" : "802F",
+      "subsystem_vendor" : "17AA",
+      "vendor" : "8086"
+    },
+    {
+      "device" : "2D59",
+      "identity_source" : "live_registry",
+      "model" : "NVIDIA GeForce RTX 5060 Laptop GPU",
+      "registry_path" : "IOService:\/AppleACPIPlatformExpert\/PC00\/AppleACPIPCI\/PEG1@1\/IOPP\/PEGP@0",
+      "subsystem_device" : "802F",
+      "subsystem_vendor" : "17AA",
+      "vendor" : "10DE"
+    }
+  ],
+  "gpu_id" : "2D59",
+  "gpu_rule_selection" : "single_registry_device",
+  "laptop" : true,
+  "macos_major" : 26,
+  "rules" : [
+    "bar1-resize-8gb"
+  ]
+}
