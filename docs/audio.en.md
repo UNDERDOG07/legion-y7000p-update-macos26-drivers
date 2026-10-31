@@ -11,14 +11,16 @@ tying it to the codec.
 | [`SimpleHDA.kext`](https://github.com/laobamac/SimpleHDA) | 1.0.0 | `EFI/OC/Kexts` |
 | `layout-id` | `99` | `DeviceProperties → Add → PciRoot(0x0)/Pci(0x1f,0x3)` |
 
-`SimpleHDA` is scoped to `MinKernel 25.0.0` / `MaxKernel 25.99.99`, which is Darwin 25 — macOS 26
-only. It is the one audio component here that is tied to the OS version.
+**This kext was added later, and it is why audio works at all.**
 
-Its purpose is stated plainly in the project description: **restore native AppleHDA on macOS Tahoe
-through OpenCore and Lilu.** macOS 26 changed how `AppleHDA` loads, and AppleALC alone does not cover
-that — this kext puts the framework back first.
+The old config had `AppleALC` and `layout-id 99` only — enough on macOS 15, silent on 26. macOS 26
+changed how `AppleHDA` loads, and AppleALC's patches had nothing to attach to. `SimpleHDA` restores the
+native `AppleHDA` first; AppleALC can only take over once it is there.
 
-Version comparison in [sources.md](sources.md).
+The `layout-id 99` device property was never touched. So "no sound" was not a wrong layout — the
+framework was missing.
+
+Version comparison in [sources.md](sources.en.md).
 
 ## Verifying
 

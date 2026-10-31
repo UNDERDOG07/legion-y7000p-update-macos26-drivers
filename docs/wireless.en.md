@@ -7,15 +7,29 @@ weaker half.
 
 | Piece | Value |
 |---|---|
-| Card | Intel CNVi part, `8086:1692` — factory, never replaced |
+| Card | Intel **AX1690i**, `8086:1692` — factory, never replaced |
 | Driver | [`AirportItlwm.kext`](https://github.com/laobamac/itlwm) 2.4.0 (**fork**) |
 | Firmware | `itlwm: 2.4.0_738d4c6 fw: 68.01d30b0c.0` |
 | Boot argument | `itlwm_he=1` |
 | Interface | `en0` |
 
-The older notes list an AX1690i at `8086:7A70` and describe it as swapped in by the owner. **Neither is
-correct** — the card is the factory one, and `7A70` is not this machine's ID. What the system reports
-is what to go by; that row in the old notes can be ignored entirely.
+The card is an Intel **AX1690i**, PCI ID `8086:1692`, factory, never replaced.
+
+The older notes record `8086:7A70` and describe the card as swapped in by the owner. Both are wrong.
+The model never changed, and `1692` is its PCI ID; `7A70` looks like it was copied from a different CNVi
+part. Ignore that row.
+
+**Wi-Fi works because the driver was changed, not the hardware.** The old config used `itlwm.kext`; this
+one uses `AirportItlwm.kext`:
+
+| | `itlwm` | `AirportItlwm` |
+|---|---|---|
+| Presents as | an Ethernet device | a native Airport interface |
+| System Wi-Fi menu | none | yes |
+| Scan / associate | through a private tool such as HeliPort | handled by the system |
+
+The "Wi-Fi ❌" entry in the old notes describes the `itlwm` era. It became a Mac with Wi-Fi when the
+driver was switched.
 
 Upstream [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) stops at **v2.3.0
 (2024-06)** and does not support macOS 26. The 2.4.0 here comes from **`v2.4.0-alpha`** in

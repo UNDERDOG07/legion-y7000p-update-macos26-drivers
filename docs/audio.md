@@ -10,9 +10,11 @@
 | [`SimpleHDA.kext`](https://github.com/laobamac/SimpleHDA) | 1.0.0 | `EFI/OC/Kexts` |
 | `layout-id` | `99` | `DeviceProperties → Add → PciRoot(0x0)/Pci(0x1f,0x3)` |
 
-`SimpleHDA` 的 `MinKernel 25.0.0` / `MaxKernel 25.99.99` 把它限定在 Darwin 25，也就是只有在 macOS 26 上才加载。它是这台机器上唯一与系统版本强绑定的音频组件。
+**这个 kext 是后来补上的，也是音频能出声的原因。**
 
-它的作用在项目描述里写得很直白：**restore native AppleHDA on macOS Tahoe through OpenCore and Lilu** —— 在 Tahoe 上把原生 `AppleHDA` 恢复回来。也就是说 macOS 26 改了 `AppleHDA` 的加载路径，只靠 AppleALC 补不上这一段，需要它先把框架装回去。
+旧配置里只有 `AppleALC` 和 `layout-id 99`——在 macOS 15 上够用，到 26 就不出声了。因为 26 改了 `AppleHDA` 的加载路径，AppleALC 的补丁没有地方可打。加上 `SimpleHDA` 之后，它先把原生 `AppleHDA` 恢复回来，AppleALC 才有东西可接管。
+
+`DeviceProperties` 那条 `layout-id 99` 从头到尾没动过。所以「没声音」不是 layout 配错了，是框架不在。
 
 版本对照见 [sources.md](sources.md)。
 

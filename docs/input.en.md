@@ -44,21 +44,32 @@ this chassis and matches how the machine behaves under Windows.
 
 ## Trackpad
 
-It works — which it did not on macOS 15. The older notes for this machine record the kext stack as
-present with the touchpad never responding.
+It works. **That is not an OS update side effect — it happened when the kext combination was fixed.**
 
-| Piece | Version |
-|---|---|
-| `VoodooI2C.kext` | 2.9.1 |
-| `VoodooI2CHID.kext` | 2.9.1 (plugin) |
-| `VoodooGPIO.kext` | plugin of VoodooI2C |
-| Boot argument | `-vi2c-force-polling` |
+VoodooI2C and VoodooPS2 each ship a copy of `VoodooInput`, the trackpad input protocol layer, and only
+one may be enabled. The old config had the I2C copy enabled while the PS2 mouse and trackpad plugins
+were also on. The result: every kext loaded, the device was present, and the trackpad did nothing. That
+is the state the old notes describe as "the stack is there, it never responded".
+
+The current combination:
+
+| Piece | Version | State |
+|---|---|---|
+| [`VoodooI2C.kext`](https://github.com/VoodooI2C/VoodooI2C) | 2.9.1 | enabled |
+| `VoodooI2CHID.kext` | 2.9.1 | enabled |
+| `VoodooGPIO.kext` | 2.9.1 | enabled |
+| `VoodooInput.kext` from VoodooI2C | 2.9.1 | **disabled** |
+| [`VoodooPS2Controller`](https://github.com/acidanthera/VoodooPS2)'s `VoodooInput.kext` | 2.3.8 | **enabled** (the key one) |
+| `VoodooPS2Mouse.kext` / `VoodooPS2Trackpad.kext` | 2.3.8 | **disabled** |
+| Boot argument | | `-vi2c-force-polling` |
+
+Three changes together: `VoodooInput` switched to the VoodooPS2 copy, the I2C copy turned off, the PS2
+mouse and trackpad plugins turned off.
 
 The device is I2C HID on GPIO, `INTC1085`. One `VoodooI2CHIDDevice` instance attaches.
 
-`-vi2c-force-polling` is doing real work. Without it the kexts load, the device never reports input,
-and the whole stack looks installed-but-dead. It forces polling instead of waiting on the GPIO
-interrupt, at a small power cost.
+`-vi2c-force-polling` was already in the old config and never left. It makes the driver poll instead of
+waiting on the GPIO interrupt — remove it and the kexts still load, the device just never reports input.
 
 ### Checking
 

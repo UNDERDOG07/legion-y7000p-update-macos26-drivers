@@ -25,18 +25,27 @@ F 区发的是标准功能键，亮度和音量在 Fn 层。这个机型的原�
 
 ## 触控板
 
-能用——而 macOS 15 时期是不能的。旧笔记记录的是「kext 栈都在，触控板从没响应过」。
+能用。**这不是系统更新带来的，是把 kext 组合改对之后才通的。**
 
-| 组件 | 版本 |
-|---|---|
-| [`VoodooI2C.kext`](https://github.com/VoodooI2C/VoodooI2C) | 2.9.1 |
-| `VoodooI2CHID.kext` | 2.9.1（plugin） |
-| `VoodooGPIO.kext` | VoodooI2C 的 plugin |
-| 启动参数 | `-vi2c-force-polling` |
+VoodooI2C 和 VoodooPS2 各自带一份 `VoodooInput` —— 触控板输入协议那一层，两个只能启用一个。旧配置启用的是 I2C 那份，同时 PS2 的鼠标和触控板插件还开着。症状就是：kext 全都加载了，设备也在，触控板一点反应都没有。旧笔记里那句「栈都在，从没响应过」指的就是这个状态。
+
+现在的组合：
+
+| 组件 | 版本 | 状态 |
+|---|---|---|
+| [`VoodooI2C.kext`](https://github.com/VoodooI2C/VoodooI2C) | 2.9.1 | 启用 |
+| `VoodooI2CHID.kext` | 2.9.1 | 启用 |
+| `VoodooGPIO.kext` | 2.9.1 | 启用 |
+| `VoodooI2C` 自带的 `VoodooInput.kext` | 2.9.1 | **禁用** |
+| [`VoodooPS2Controller`](https://github.com/acidanthera/VoodooPS2) 自带的 `VoodooInput.kext` | 2.3.8 | **启用**（关键） |
+| `VoodooPS2Mouse.kext` / `VoodooPS2Trackpad.kext` | 2.3.8 | **禁用** |
+| 启动参数 | | `-vi2c-force-polling` |
+
+三处改动叠起来才生效：`VoodooInput` 换成 VoodooPS2 那份、I2C 那份关掉、PS2 的鼠标和触控板插件关掉。
 
 设备是 GPIO 上的 I2C HID，`INTC1085`。`ioreg` 里能看到一个 `VoodooI2CHIDDevice` 实例。
 
-`-vi2c-force-polling` 在这里是真起作用的。没有它，kext 会加载、设备永远不报输入，整套东西看起来「装好了但是死的」。它让驱动轮询而不是等 GPIO 中断，代价是一点功耗。
+`-vi2c-force-polling` 在旧配置里就有，一直都在。它让驱动轮询而不是等 GPIO 中断——去掉之后 kext 照样加载，设备永远不报输入。
 
 ### 检查
 

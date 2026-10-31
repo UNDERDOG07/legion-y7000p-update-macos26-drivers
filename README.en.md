@@ -29,10 +29,10 @@ What it does not cover: how to install macOS.
 | Hardware | State | Notes | Doc |
 |---|---|---|---|
 | RTX 5060 | ✅ | Metal 3; internal panel does 240 Hz alone | [docs/gpu.en.md](docs/gpu.en.md) |
-| Audio | ✅ | Speakers and mic; SimpleHDA + `layout-id 99` | [docs/audio.en.md](docs/audio.en.md) |
-| Trackpad | ✅ | VoodooI2CHID | [docs/input.en.md](docs/input.en.md) |
+| Audio | ✅ | SimpleHDA restores AppleHDA so AppleALC + `layout-id 99` can take over | [docs/audio.en.md](docs/audio.en.md) |
+| Trackpad | ✅ | VoodooI2CHID, with VoodooInput taken from VoodooPS2 | [docs/input.en.md](docs/input.en.md) |
 | Keyboard | ✅ | no remapping needed | [docs/input.en.md](docs/input.en.md) |
-| Wi-Fi | ✅ | 802.11ac / 80 MHz / 867 Mbps | [docs/wireless.en.md](docs/wireless.en.md) |
+| Wi-Fi | ✅ | AX1690i; only works after switching `itlwm` → `AirportItlwm` | [docs/wireless.en.md](docs/wireless.en.md) |
 | Bluetooth | ⚠️ | controllers and headphones work; other device types do not | [docs/wireless.en.md](docs/wireless.en.md) |
 | Camera | ✅ | UVC, enumerates and captures | [docs/permissions.en.md](docs/permissions.en.md) |
 | Battery | ✅ | needs SMCBatteryManager + YogaSMC | [docs/power.en.md](docs/power.en.md) |
