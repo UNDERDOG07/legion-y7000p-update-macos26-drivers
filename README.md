@@ -83,7 +83,7 @@ itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
 ## 配套工具
 
 - **1401** —— 做引导盘、装 NVIDIA 驱动、提供内屏亮度控制。EFI 和驱动的实际来源。
-- **tccgrant** —— [docs/permissions.md](docs/permissions.md) 里那段脚本的最终形态，用来给系统拒绝询问的 App 补授权。
+- **tccgrant** —— 给系统拒绝询问的 App 补授权的脚本，用法见 [docs/permissions.md](docs/permissions.md)；脚本本体未随仓库发布。
 
 ## EFI
 

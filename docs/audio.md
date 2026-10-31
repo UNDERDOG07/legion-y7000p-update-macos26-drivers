@@ -10,7 +10,7 @@
 | [`SimpleHDA.kext`](https://github.com/laobamac/SimpleHDA) | 1.0.0 | `EFI/OC/Kexts` |
 | `layout-id` | `99` | `DeviceProperties → Add → PciRoot(0x0)/Pci(0x1f,0x3)` |
 
-**这个 kext 是后来补上的，也是音频能出声的原因。**
+**这个 kext 是后来补上的，补的正是缺的那一环。**
 
 旧配置里只有 `AppleALC` 和 `layout-id 99`——在 macOS 15 上够用，到 26 就不出声了。因为 26 改了 `AppleHDA` 的加载路径，AppleALC 的补丁没有地方可打。加上 `SimpleHDA` 之后，它先把原生 `AppleHDA` 恢复回来，AppleALC 才有东西可接管。
 

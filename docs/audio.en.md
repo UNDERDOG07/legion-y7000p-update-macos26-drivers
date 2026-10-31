@@ -11,7 +11,7 @@ tying it to the codec.
 | [`SimpleHDA.kext`](https://github.com/laobamac/SimpleHDA) | 1.0.0 | `EFI/OC/Kexts` |
 | `layout-id` | `99` | `DeviceProperties → Add → PciRoot(0x0)/Pci(0x1f,0x3)` |
 
-**This kext was added later, and it is why audio works at all.**
+**This kext was added later, and it is what was missing.**
 
 The old config had `AppleALC` and `layout-id 99` only — enough on macOS 15, silent on 26. macOS 26
 changed how `AppleHDA` loads, and AppleALC's patches had nothing to attach to. `SimpleHDA` restores the

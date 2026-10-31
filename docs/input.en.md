@@ -43,32 +43,41 @@ this chassis and matches how the machine behaves under Windows.
 
 ## Trackpad
 
-It works. **That is not an OS update side effect — it happened when the kext combination was fixed.**
+It works. **That is not an OS update side effect — it started working when a dead reference in the
+config was removed.**
 
-VoodooI2C and VoodooPS2 each ship a copy of `VoodooInput`, the trackpad input protocol layer, and only
-one may be enabled. The old config had the I2C copy enabled while the PS2 mouse and trackpad plugins
-were also on. The result: every kext loaded, the device was present, and the trackpad did nothing. That
-is the state the old notes describe as "the stack is there, it never responded".
+`VoodooInput` is the trackpad input protocol layer. **VoodooI2C 2.9.1 ships only `VoodooGPIO` and
+`VoodooI2CServices`, not `VoodooInput`** — it depends on the copy that comes with VoodooPS2.
+
+The old config carried two `VoodooInput` entries:
+
+- one pointing at `VoodooI2C.kext/Contents/PlugIns/VoodooInput.kext` — **enabled**, but there is no file
+  at that path
+- one pointing at `VoodooPS2Controller.kext/Contents/PlugIns/VoodooInput.kext` — **disabled**
+
+So the layer never loaded at all. Every kext was up, the device was present, and the trackpad did
+nothing — the state the old notes describe as "the stack is there, it never responded".
 
 The current combination:
 
 | Piece | Version | State |
 |---|---|---|
 | [`VoodooI2C.kext`](https://github.com/VoodooI2C/VoodooI2C) | 2.9.1 | enabled |
-| `VoodooI2CHID.kext` | 2.9.1 | enabled |
-| `VoodooGPIO.kext` | 2.9.1 | enabled |
-| `VoodooInput.kext` from VoodooI2C | 2.9.1 | **disabled** |
-| [`VoodooPS2Controller`](https://github.com/acidanthera/VoodooPS2)'s `VoodooInput.kext` | 2.3.8 | **enabled** (the key one) |
+| `VoodooI2CHID.kext` | 1.0 | enabled |
+| `VoodooGPIO.kext` | 1.1 | enabled |
+| `VoodooI2CServices.kext` | 1.0 | enabled |
+| `VoodooInput.kext` from VoodooPS2Controller | 1.1.7 | **enabled** (the key one) |
 | `VoodooPS2Mouse.kext` / `VoodooPS2Trackpad.kext` | 2.3.8 | **disabled** |
 | Boot argument | | `-vi2c-force-polling` |
 
-Three changes together: `VoodooInput` switched to the VoodooPS2 copy, the I2C copy turned off, the PS2
-mouse and trackpad plugins turned off.
+The changes: the entry pointing at a file that does not exist is gone, VoodooPS2's `VoodooInput` is on,
+and the PS2 mouse and trackpad plugins are off.
 
 The device is I2C HID on GPIO, `INTC1085`. One `VoodooI2CHIDDevice` instance attaches.
 
 `-vi2c-force-polling` was already in the old config and never left. It makes the driver poll instead of
 waiting on the GPIO interrupt — remove it and the kexts still load, the device just never reports input.
+It is necessary, not sufficient: the old config had it and the trackpad still did nothing.
 
 ### Checking
 

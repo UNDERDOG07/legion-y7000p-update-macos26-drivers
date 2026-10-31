@@ -26,8 +26,10 @@ What follows is the measured difference.
 | VoodooPS2Controller | 2.3.8 | [acidanthera/VoodooPS2](https://github.com/acidanthera/VoodooPS2) 2.3.7 | one ahead |
 | BlueToolFixup | 2.7.3 | [acidanthera/BrcmPatchRAM](https://github.com/acidanthera/BrcmPatchRAM) 2.7.2 | one ahead |
 | CpuTopologyRebuild | 2.0.2 | [b00t0x/CpuTopologyRebuild](https://github.com/b00t0x/CpuTopologyRebuild) 2.0.2 | same |
-| VoodooI2C / VoodooI2CHID | 2.9.1 | [VoodooI2C/VoodooI2C](https://github.com/VoodooI2C/VoodooI2C) v2.9.1 | same |
-| USBToolBox / UTBDefault | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext) 1.2.0 | same |
+| VoodooI2C | 2.9.1 | [VoodooI2C/VoodooI2C](https://github.com/VoodooI2C/VoodooI2C) v2.9.1 | same |
+| VoodooI2CHID / VoodooGPIO / VoodooI2CServices | 1.0 / 1.1 / 1.0 | shipped with VoodooI2C | plugins are numbered separately |
+| USBToolBox | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext) 1.2.0 | same |
+| UTBDefault | 1.0 | shipped with USBToolBox | port-map injector, numbered separately |
 | RealtekRTL8111 | 3.0.4 | [Mieze/RTL8111_driver_for_OS_X](https://github.com/Mieze/RTL8111_driver_for_OS_X) v3.0.0 | three revisions ahead |
 | YogaSMC | 1.5.3 | [zhen-zen/YogaSMC](https://github.com/zhen-zen/YogaSMC) 1.5.3 | same |
 | SimpleHDA | 1.0.0 | [laobamac/SimpleHDA](https://github.com/laobamac/SimpleHDA) v1.0.0 | same |
@@ -35,6 +37,20 @@ What follows is the measured difference.
 | IntelBluetoothFirmware / IntelBTPatcher | 2.5.0 | **[lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware)** v2.5.0 | **fork**, see below |
 | AMFIPass | 1.4.1 | original `dhinakg/AMFIPass` is 404 | no reachable upstream |
 | XHCI-unsupported | 0.9.2 | RehabMan's repository is gone | no reachable upstream |
+
+## Components that are not in the EFI
+
+`EFI/OC/Kexts` holds only what the boot path needs. The GPU driver that decides whether this machine
+shows a picture is not in there — it lives on the system volume:
+
+| Component | Version | Location | Source |
+|---|---|---|---|
+| NullMoth NVIDIA driver | 2.6.5 | `/Library/Extensions`, `/Library/GPUBundles` | [nullmoth/nvidia-macos-driver](https://github.com/nullmoth/nvidia-macos-driver) |
+| GSP firmware | 615.78.08 | `/Library/NullMoth/nvfw/nvidia/` | shipped with the driver package |
+| 1401 boot stick tool | 2.6.5 | Windows program | [nullmoth/1401](https://github.com/nullmoth/1401) |
+
+None of the three is in this repository or in the EFI. Install layout and reinstall triggers are in
+[gpu.en.md](gpu.en.md).
 
 ## Wi-Fi has to come from a fork
 

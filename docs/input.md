@@ -25,27 +25,34 @@ F 区发的是标准功能键，亮度和音量在 Fn 层。这个机型的原�
 
 ## 触控板
 
-能用。**这不是系统更新带来的，是把 kext 组合改对之后才通的。**
+能用。**这不是系统更新带来的，是把 config 里一条失效引用改掉之后才通的。**
 
-VoodooI2C 和 VoodooPS2 各自带一份 `VoodooInput` —— 触控板输入协议那一层，两个只能启用一个。旧配置启用的是 I2C 那份，同时 PS2 的鼠标和触控板插件还开着。症状就是：kext 全都加载了，设备也在，触控板一点反应都没有。旧笔记里那句「栈都在，从没响应过」指的就是这个状态。
+`VoodooInput` 是触控板输入协议那一层。**VoodooI2C 2.9.1 的包里只有 `VoodooGPIO` 和 `VoodooI2CServices`，没有 `VoodooInput`** —— 它依赖 VoodooPS2 提供的那份。
+
+旧配置里有两处 `VoodooInput` 条目：
+
+- 指向 `VoodooI2C.kext/Contents/PlugIns/VoodooInput.kext` 的，**启用**，但那个路径下没有文件
+- 指向 `VoodooPS2Controller.kext/Contents/PlugIns/VoodooInput.kext` 的，**禁用**
+
+结果就是这一层根本没加载。kext 全都起来了、设备也在，触控板一点反应都没有——旧笔记那句「栈都在，从没响应过」说的就是这个。
 
 现在的组合：
 
 | 组件 | 版本 | 状态 |
 |---|---|---|
 | [`VoodooI2C.kext`](https://github.com/VoodooI2C/VoodooI2C) | 2.9.1 | 启用 |
-| `VoodooI2CHID.kext` | 2.9.1 | 启用 |
-| `VoodooGPIO.kext` | 2.9.1 | 启用 |
-| `VoodooI2C` 自带的 `VoodooInput.kext` | 2.9.1 | **禁用** |
-| [`VoodooPS2Controller`](https://github.com/acidanthera/VoodooPS2) 自带的 `VoodooInput.kext` | 2.3.8 | **启用**（关键） |
+| `VoodooI2CHID.kext` | 1.0 | 启用 |
+| `VoodooGPIO.kext` | 1.1 | 启用 |
+| `VoodooI2CServices.kext` | 1.0 | 启用 |
+| `VoodooPS2Controller` 的 `VoodooInput.kext` | 1.1.7 | **启用**（关键） |
 | `VoodooPS2Mouse.kext` / `VoodooPS2Trackpad.kext` | 2.3.8 | **禁用** |
 | 启动参数 | | `-vi2c-force-polling` |
 
-三处改动叠起来才生效：`VoodooInput` 换成 VoodooPS2 那份、I2C 那份关掉、PS2 的鼠标和触控板插件关掉。
+改动是：删掉那条指向不存在文件的条目，把 VoodooPS2 的 `VoodooInput` 打开，PS2 的鼠标和触控板插件关掉。
 
 设备是 GPIO 上的 I2C HID，`INTC1085`。`ioreg` 里能看到一个 `VoodooI2CHIDDevice` 实例。
 
-`-vi2c-force-polling` 在旧配置里就有，一直都在。它让驱动轮询而不是等 GPIO 中断——去掉之后 kext 照样加载，设备永远不报输入。
+`-vi2c-force-polling` 在旧配置里就有，一直都在。它让驱动轮询而不是等 GPIO 中断——去掉之后 kext 照样加载，设备永远不报输入。它是必要条件，不是充分条件：旧配置有它，触控板照样不动。
 
 ### 检查
 

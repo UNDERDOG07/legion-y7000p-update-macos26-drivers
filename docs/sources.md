@@ -22,8 +22,10 @@
 | VoodooPS2Controller | 2.3.8 | [acidanthera/VoodooPS2](https://github.com/acidanthera/VoodooPS2) 2.3.7 | 高 1 |
 | BlueToolFixup | 2.7.3 | [acidanthera/BrcmPatchRAM](https://github.com/acidanthera/BrcmPatchRAM) 2.7.2 | 高 1 |
 | CpuTopologyRebuild | 2.0.2 | [b00t0x/CpuTopologyRebuild](https://github.com/b00t0x/CpuTopologyRebuild) 2.0.2 | 一致 |
-| VoodooI2C / VoodooI2CHID | 2.9.1 | [VoodooI2C/VoodooI2C](https://github.com/VoodooI2C/VoodooI2C) v2.9.1 | 一致 |
-| USBToolBox / UTBDefault | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext) 1.2.0 | 一致 |
+| VoodooI2C | 2.9.1 | [VoodooI2C/VoodooI2C](https://github.com/VoodooI2C/VoodooI2C) v2.9.1 | 一致 |
+| VoodooI2CHID / VoodooGPIO / VoodooI2CServices | 1.0 / 1.1 / 1.0 | 随 VoodooI2C 发布 | plugin 版本独立编号 |
+| USBToolBox | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext) 1.2.0 | 一致 |
+| UTBDefault | 1.0 | 随 USBToolBox 发布 | 端口映射 injector，版本独立 |
 | RealtekRTL8111 | 3.0.4 | [Mieze/RTL8111_driver_for_OS_X](https://github.com/Mieze/RTL8111_driver_for_OS_X) v3.0.0 | 高 3 个修订 |
 | YogaSMC | 1.5.3 | [zhen-zen/YogaSMC](https://github.com/zhen-zen/YogaSMC) 1.5.3 | 一致 |
 | SimpleHDA | 1.0.0 | [laobamac/SimpleHDA](https://github.com/laobamac/SimpleHDA) v1.0.0 | 一致 |
@@ -31,6 +33,18 @@
 | IntelBluetoothFirmware / IntelBTPatcher | 2.5.0 | **[lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware)** v2.5.0 | **fork**，见下 |
 | AMFIPass | 1.4.1 | 原仓库 `dhinakg/AMFIPass` 已 404 | 无可用上游 |
 | XHCI-unsupported | 0.9.2 | RehabMan 原仓库已删除 | 无可用上游 |
+
+## 不在 EFI 里的组件
+
+`EFI/OC/Kexts` 只放引导阶段要用的东西。决定这台机器能不能出画面的显卡驱动不在里面，它装在系统卷上：
+
+| 组件 | 版本 | 位置 | 来源 |
+|---|---|---|---|
+| NullMoth NVIDIA 驱动 | 2.6.5 | `/Library/Extensions`、`/Library/GPUBundles` | [nullmoth/nvidia-macos-driver](https://github.com/nullmoth/nvidia-macos-driver) |
+| GSP 固件 | 615.78.08 | `/Library/NullMoth/nvfw/nvidia/` | 随驱动包提供 |
+| 1401 引导盘工具 | 2.6.5 | Windows 程序 | [nullmoth/1401](https://github.com/nullmoth/1401) |
+
+三者都不在本仓库，也不在 EFI 里。装载位置和重装时机见 [gpu.md](gpu.md)。
 
 ## Wi-Fi：必须走 fork
 

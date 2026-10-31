@@ -29,7 +29,7 @@
 | 系统 Wi-Fi 菜单 | 没有 | 有 |
 | 扫描 / 关联 | 靠 HeliPort 之类的私有工具 | 系统自己处理 |
 
-旧笔记里那条「Wi-Fi ❌ 驱动不存在」，是换卡之前、`itlwm` 时代的状态。
+旧笔记里那条「Wi-Fi ❌ 驱动不存在」，记录的是 `itlwm` 时期的状态。
 
 上游 [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) 只到 **v2.3.0（2024-06）**，不支持 macOS 26。本机的 2.4.0 来自 [laobamac/itlwm](https://github.com/laobamac/itlwm) 的 `v2.4.0-alpha`，bundle identifier 仍是 `com.zxystd.AirportItlwm`。**直接下上游 2.3.0 是装不上的**，对照见 [sources.md](sources.md)。
 

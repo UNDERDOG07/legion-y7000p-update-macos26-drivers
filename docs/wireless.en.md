@@ -33,7 +33,7 @@ The difference between the two drivers:
 | System Wi-Fi menu | none | yes |
 | Scan / associate | through a private tool such as HeliPort | handled by the system |
 
-The "Wi-Fi ❌" entry in the old notes is the state before the card swap, under `itlwm`.
+The "Wi-Fi ❌" entry in the old notes is a state from the `itlwm` period.
 
 Upstream [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) stops at **v2.3.0
 (2024-06)** and does not support macOS 26. The 2.4.0 here comes from **`v2.4.0-alpha`** in

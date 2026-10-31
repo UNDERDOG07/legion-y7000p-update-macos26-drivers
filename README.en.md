@@ -80,8 +80,8 @@ verified as necessary from the ones that are simply carried over from the driver
 
 - **1401** — builds the boot stick, installs the NVIDIA driver, and provides the internal-panel
   brightness control. The actual source of both the EFI and the driver.
-- **tccgrant** — the finished form of the script in [docs/permissions.en.md](docs/permissions.en.md), for
-  granting permissions that the system refuses to ask about.
+- **tccgrant** — a script for granting permissions the system refuses to ask about. Usage in
+  [docs/permissions.en.md](docs/permissions.en.md); the script itself is not in this repository.
 
 ## EFI
 
