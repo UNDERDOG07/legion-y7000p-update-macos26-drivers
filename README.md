@@ -5,9 +5,9 @@
 **机器**：联想 Legion Y7000P IRX10（83NN），`i9-14900HX` + `NVIDIA RTX 5060 Laptop`，32 GB
 **系统**：macOS 26.7.2（25G332），Darwin 25.6.0，SMBIOS `MacBookPro16,4`
 
-这个仓库只写一件事：**系统装好之后，每个硬件是怎么修到能用的。**
+这个仓库写的是：**系统装好之后，每个硬件是怎么修到能用的。**
 
-安装流程不在这里。`1401` 现在能直接装 26，装机本身比后面调驱动短得多，也没什么值得记的步骤。
+安装流程不在这里。`1401` 现在能直接装 26，装机本身比后面调驱动短得多。
 
 ---
 
@@ -104,7 +104,7 @@ itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
 
 原有的 17 份历史配置备份（都带真实序列号）已从仓库中移除，只保留当前这一份。
 
-一个如实保留的细节：这份 `config.plist` 里 `Misc → Boot → HideAuxiliary` 是 `false`，因为 `1401.app` 最后一次改设置时把它重置了。后果是 picker 里会多出两个 `1401:` 开头的条目。想隐藏回去，改法见 [docs/gpu.md](docs/gpu.md) —— 这正是那篇里提到的「App 会重写 config」实例。
+这份 `config.plist` 里 `Misc → Boot → HideAuxiliary` 是 `false`，因为 `1401.app` 最后一次改设置时把它重置了。后果是 picker 里会多出两个 `1401:` 开头的条目。想隐藏回去，改法见 [docs/gpu.md](docs/gpu.md)。
 
 ## 上一版
 

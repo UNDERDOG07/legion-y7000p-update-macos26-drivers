@@ -89,7 +89,7 @@ kmutil showloaded | grep -v com.apple
 cat /Volumes/1401/oc.log 2>/dev/null
 ```
 
-`Misc → Debug → Target` 控制 OpenCore 的日志。`3` 只写控制台；加上 `0x40` 会往 EFI 分区写文件。那个文件是「macOS 还没起来就失败了」时唯一的记录，值得在动任何有风险的东西之前先打开。
+`Misc → Debug → Target` 控制 OpenCore 的日志。`3` 只写控制台；加上 `0x40` 会往 EFI 分区写文件。那个文件是「macOS 还没起来就失败了」时唯一的记录，动任何有风险的东西之前先打开。
 
 一个 `nvram` 的坑：它只列 Apple 自己的变量。第三方 GUID 下的（Mok、RestrictEvents）要通过设备树读：
 

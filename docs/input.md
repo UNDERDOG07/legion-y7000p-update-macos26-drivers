@@ -15,7 +15,7 @@
 
 **不需要任何映射。** 两块键盘发出来的修饰键位置本来就是 macOS 期望的，`hidutil property --get UserKeyMapping` 返回 `null` —— 这是**正确状态**，不是缺配置。
 
-这点值得写清楚，因为交换 Option 和 Command 是大多数人拿到 Windows 键盘后做的第一件事，而这台机器上那么做反而是错的。外接键盘的 `Win` 键就是 Command，`Alt` 就是 Option，不用改。
+交换 Option 和 Command 是拿到 Windows 键盘后最常做的第一件事，在这台机器上那么做反而是错的。外接键盘的 `Win` 键就是 Command，`Alt` 就是 Option，不用改。
 
 真遇到需要交换的键盘，**系统设置 → 键盘 → 键盘快捷键 → 修饰键** 里有按键盘区分的面板。需要的时候用它比 `hidutil` 好：能跨系统更新存活，也不需要登录项。
 

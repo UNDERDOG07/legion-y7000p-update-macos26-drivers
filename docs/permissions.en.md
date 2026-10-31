@@ -1,7 +1,6 @@
 # Privacy permissions when the prompt never appears
 
-This is the one problem on this machine with no upstream fix, and the one that took longest to
-understand. The diagnosis is written out in full because the symptom points in the wrong direction.
+The one problem on this machine with no upstream fix, and the symptom points in the wrong direction.
 
 ## The symptom
 

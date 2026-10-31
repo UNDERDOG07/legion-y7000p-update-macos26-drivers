@@ -18,9 +18,8 @@ Nothing needs remapping. Both keyboards send the modifiers where macOS expects t
 `hidutil property --get UserKeyMapping` returns `null` — that is the correct state here, not a missing
 configuration.
 
-This is worth stating plainly, because swapping Option and Command is the first thing most people do on
-a Windows keyboard, and on this machine it would be a regression. The external board's `Win` key
-behaves as Command and `Alt` as Option without any change.
+Swapping Option and Command is the first thing most people do on a Windows keyboard. Here it would be a
+regression — the external board's `Win` key is already Command and `Alt` is already Option.
 
 If you do end up with a board that needs the swap, **System Settings → Keyboard → Keyboard Shortcuts →
 Modifier Keys** has a panel that lists each keyboard separately. It is the better option when it is

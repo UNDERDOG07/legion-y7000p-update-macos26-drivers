@@ -97,7 +97,7 @@ Tue Oct 27 17:26:16 CST 2026 the new driver brought its display up; keeping it
 - `Misc → Boot → HideAuxiliary` 回到 `false`
 - 两个 `NullMothSafe.efi` 工具条目回到 `Auxiliary = false`
 
-不是 bug：那个 App 不知道手动设过的隐藏标记。每次改完要重新设一遍：
+那个 App 不认识手动设的隐藏标记，每次改完要重新设一遍：
 
 ```
 Misc → Boot → HideAuxiliary = true
@@ -129,10 +129,10 @@ Misc → Tools[Path = NullMothSafe.efi] → Auxiliary = true    （两条都改�
 
 H.264 反过来：videotoolbox 0.82 s，纯 CPU 0.59 s。
 
-这组数字描述的是命令行解码，不代表播放器的表现。写在这里只为说明一件事：**没有硬件解码器，不等于解码慢。**
+这组数字是命令行解码，不代表播放器表现。但足以说明：**没有硬件解码器，不等于解码慢。**
 
 ## 已知限制
 
-- **DRM** —— Apple TV、Netflix 播不了。没测，也不值得测：驱动里没有 HDCP 路径。
+- **DRM** —— Apple TV、Netflix 播不了。没测：驱动里没有 HDCP 路径。
 - **睡眠** —— 唤醒后 GPU 回不来。整机层面的限制，见 [limits.md](limits.md)。
 - **外接显示器**走 dGPU 的 HDMI，与 BIOS 的 MUX 无关。这也是内屏黑掉时唯一还能用的输出。

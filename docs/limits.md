@@ -1,6 +1,6 @@
 # 这台机器做不到的事
 
-下面四条不是「还没配置」，而是卡在配置层以下。原因比绕法更有价值。
+这四条卡在配置层以下，不是还没配置。
 
 ## 睡眠
 
@@ -18,7 +18,7 @@ sudo pmset -a sleep 0
 
 三个都依赖 AWDL，那个点对点 Wi-Fi 接口。AirportItlwm 没有实现它，EFI 设置或 kext 都补不回来。
 
-**不是蓝牙的问题。** 这句话值得直说，因为症状（近处设备之间传不了文件）读起来像蓝牙问题，会把人带偏。
+**不是蓝牙的问题。** 症状（近处设备之间传不了文件）读起来像蓝牙问题，会把人带偏。
 
 ## Secure Boot
 
@@ -30,7 +30,7 @@ sudo pmset -a sleep 0
 
 所以 Secure Boot 保持关闭，U 盘上的 EFI 本身是未签名的。**打开 Secure Boot 会让这台机器起不来。**
 
-一个可以留着的诊断细节：`nvram -p` 只列 Apple 自己的变量，`Mok*` 看起来不存在也可能只是被过滤了。要读改用 `ioreg -p IODeviceTree -n options -r -l -w0`。
+一条诊断细节：`nvram -p` 只列 Apple 自己的变量，`Mok*` 看起来不存在也可能只是被过滤了。要读改用 `ioreg -p IODeviceTree -n options -r -l -w0`。
 
 ## 硬件视频解码
 
@@ -40,7 +40,7 @@ VideoToolbox 有一条走 Metal 的软件路线，HEVC 比 ffmpeg 的 CPU 解码
 
 ## 同样坏的
 
-- **DRM 播放** —— Apple TV、Netflix。驱动里没有 HDCP 路径，不值得查。
+- **DRM 播放** —— Apple TV、Netflix。驱动里没有 HDCP 路径。
 - **Wi-Fi 6** —— 网卡支持 802.11ax，链路停在 ac / 80 MHz。见 [wireless.md](wireless.md)。
 - **部分 BLE 外设** —— 能配对，随后掉线。固件层的，没有配置解法。
 - **键盘 RGB 分区** —— 控制器是 USB HID 设备，macOS 没有驱动。背光能用，颜色不能。

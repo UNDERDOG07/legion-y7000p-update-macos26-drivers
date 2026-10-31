@@ -117,7 +117,7 @@ for an injected kext and is not an error.
 Controllers and headphones work. Other classes of device do not — pairing either fails outright or the
 device drops straight after pairing.
 
-That split matters, because "Bluetooth works" on its own is misleading. Two of the most common
+"Bluetooth works" on its own is misleading. Two of the most common
 peripheral types are fine, and most of the rest of the category is not. A controller (GameSir G7 Pro)
 and headphones are what this machine is actually used with, and both are stable.
 

@@ -1,6 +1,6 @@
 # 授权弹窗不出现时怎么办
 
-这是这台机器上唯一没有上游解法的问题，也是最花时间才搞清楚的一个。诊断过程完整写在这里，因为症状指向的方向是错的。
+这台机器上唯一没有上游解法的问题，而且症状指向的方向是错的。
 
 ## 症状
 
@@ -15,9 +15,9 @@ tccd: Policy disallows prompt for Sub:{com.tencent.qq}
 tccd: access to kTCCServiceMicrophone denied
 ```
 
-`Policy disallows prompt` 的意思是：tccd 判定这次请求不允许展示给用户，于是不询问直接返回拒绝。没弹窗就没有记录，没记录列表就是空的，列表空就没有开关可打开。这个环自己闭合了。
+`Policy disallows prompt` 的意思是：tccd 判定这次请求不允许展示给用户，于是不询问直接返回拒绝。没弹窗就没有记录，没记录列表就是空的，列表空就没有开关可打开。
 
-三个看着像原因、其实不是的：
+三个看着像原因、实际不是的：
 
 - **应用的签名。** `codesign --verify --deep --strict` 通过，Gatekeeper 报 `accepted`，designated requirement 和存的对得上。
 - **`csreq` 数据。** 用 `csreq -r file -t` 解出来就是应用的 requirement —— `identifier "com.tencent.qq"`，团队 ID 一致。
@@ -29,7 +29,7 @@ AMFI 是关的（`amfi=0x80`），因为 NVIDIA 的 kext 未签名。tccd 判断
 
 这是推断，不是证明。能确认的是：这台机器上重新打开 AMFI 不是选项——没有它驱动不加载，没有驱动就没有画面。权限是更便宜的那个损失。
 
-有一个假设被试过并否掉了：移除 `revpatch=sbvmm` 重启，行为没有变化。VMM 那条不是原因。
+排除过一个假设：移除 `revpatch=sbvmm` 重启，行为没有变化。VMM 那条不是原因。
 
 ## 真正关键的地方：有两个数据库
 
@@ -42,7 +42,7 @@ AMFI 是关的（`amfi=0x80`），因为 NVIDIA 的 kext 未签名。tccd 判断
 
 往系统库里写一条 `kTCCServiceMicrophone`，记录看起来正确、读回来也正确，但什么都不会发生——应用照样被拒，设置面板照样是空的，因为这两处读的都是用户库。
 
-给出决定性线索的是：用户库里本来就有一条 `com.tencent.qq` 的 `kTCCServiceAudioCapture`，日期在升级之前，而系统库里没有任何麦克风记录。
+线索在用户库里：本来就有一条 `com.tencent.qq` 的 `kTCCServiceAudioCapture`，日期在升级之前，而系统库里没有任何麦克风记录。
 
 ## 有效的记录长什么样
 
@@ -81,7 +81,7 @@ tccgrant revoke mic com.tencent.qq         # 撤销
 
 授完之后必须**完全退出**应用（⌘Q，不是关窗口）再打开。tccd 在进程启动时读授权。
 
-### 一个值得记的 shell 坑
+### shell 坑
 
 第一版跑出来屏幕上显示 `授予 ��`。原因是 bash 里 `"$client："` 这种写法——变量后面紧跟全角字符，shell 会把那个字符的首字节吞进变量名，结果变量变空、字符残缺。要写 `"${client}："`。
 

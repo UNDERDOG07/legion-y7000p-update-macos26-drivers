@@ -23,8 +23,8 @@ sudo pmset -a sleep 0
 All three ride on AWDL, the peer-to-peer Wi-Fi interface. AirportItlwm does not implement it, and no
 EFI setting or kext brings it back.
 
-Bluetooth is not the cause. That is worth stating plainly, because the symptom (nearby devices that
-will not exchange files) reads like a Bluetooth problem and sends people down the wrong path.
+Bluetooth is not the cause. The symptom — nearby devices that will not exchange files — reads like a
+Bluetooth problem and sends people down the wrong path.
 
 ## Secure Boot
 

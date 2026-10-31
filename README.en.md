@@ -60,7 +60,7 @@ What it does not cover: how to install macOS.
 | [docs/limits.en.md](docs/limits.en.md) | what this machine cannot do, and why |
 | [docs/troubleshooting.en.md](docs/troubleshooting.en.md) | diagnosis paths |
 | [docs/sources.en.md](docs/sources.en.md) | version and upstream for every kext, and which two must come from a fork |
-| [boot-args.md](boot-args.md) | every boot argument: what it does, why it is there, what happens without it |
+| [boot-args.en.md](boot-args.en.md) | every boot argument: what it does, why it is there, what happens without it |
 
 Every document has both languages: `xxx.md` is Chinese, `xxx.en.md` is English.
 
@@ -73,7 +73,7 @@ amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0
 itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
 ```
 
-[Boot-args.md](boot-args.md) goes through them one at a time, and separates the ones that were
+[boot-args.en.md](boot-args.en.md) goes through them one at a time, and separates the ones that were
 verified as necessary from the ones that are simply carried over from the driver package.
 
 ## Companion tools
@@ -107,9 +107,9 @@ for `MacBookPro16,4` with GenSMBIOS — **the last four characters must be `MD6T
 The seventeen historical config backups that came with the stick (all carrying the real serial) are not
 included. Only the current configuration is here.
 
-One detail kept as-is: `Misc → Boot → HideAuxiliary` is `false` in this file, because `1401.app` reset
-it during its last settings change. The effect is two extra `1401:` entries in the picker. How to hide
-them again is in [docs/gpu.en.md](docs/gpu.en.md) — this is exactly the rewrite behaviour described there.
+`Misc → Boot → HideAuxiliary` is `false` in this file, because `1401.app` reset it during its last
+settings change. The effect is two extra `1401:` entries in the picker. How to hide them again is in
+[docs/gpu.en.md](docs/gpu.en.md).
 
 ## The older repo
 

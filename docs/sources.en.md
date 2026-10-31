@@ -8,7 +8,7 @@ and the table below says where each piece came from and how far it has drifted f
 Every kext here came out of the 1401 package. Almost all of them are **one revision above** the upstream
 release — `1.7.2 → 1.7.3` and so on — with a few further ahead. The likely explanation is that the
 package rebuilds from upstream master and bumps the version, but the author does not say so per item.
-What follows records the difference as measured, without vouching for upstream.
+What follows is the measured difference.
 
 ## Full comparison
 
@@ -45,8 +45,7 @@ The 2.4.0 on this machine comes from **`v2.4.0-alpha`** in
 [laobamac/itlwm](https://github.com/laobamac/itlwm). It is the same lineage — the bundle identifier is
 still `com.zxystd.AirportItlwm`, and `zxystd` is the OpenIntelWireless maintainer.
 
-In other words: **downloading 2.3.0 from upstream will not work here.** The Wi-Fi on this machine runs
-on that alpha branch.
+**Downloading 2.3.0 from upstream will not work here.** The Wi-Fi runs on that alpha branch.
 
 ## Bluetooth, same story
 

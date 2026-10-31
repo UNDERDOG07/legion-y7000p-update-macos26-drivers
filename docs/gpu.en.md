@@ -156,8 +156,7 @@ point: **no hardware decoder does not mean slow decoding.**
 
 ## Known limits
 
-- **DRM** — Apple TV and Netflix will not play. Not tested, and not worth testing: the driver has no
-  HDCP path.
+- **DRM** — Apple TV and Netflix will not play. Not tested: the driver has no HDCP path.
 - **Sleep** — the GPU does not come back after wake. Whole-machine limit, see [limits.md](limits.md).
 - **External displays** hang off the dGPU's HDMI, independent of the BIOS MUX. That is also why the
   external monitor is the only usable output when the internal panel is dark.
