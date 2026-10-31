@@ -7,15 +7,21 @@ weaker half.
 
 | Piece | Value |
 |---|---|
-| Card | Intel CNVi part, `8086:1692` |
-| Driver | `AirportItlwm.kext` 2.4.0 |
+| Card | Intel CNVi part, `8086:1692` — factory, never replaced |
+| Driver | [`AirportItlwm.kext`](https://github.com/laobamac/itlwm) 2.4.0 (**fork**) |
 | Firmware | `itlwm: 2.4.0_738d4c6 fw: 68.01d30b0c.0` |
 | Boot argument | `itlwm_he=1` |
 | Interface | `en0` |
 
-Worth noting the ID. The older notes for this machine record an AX1690i at `8086:7A70` that was not on
-the itlwm support list at all. This machine reports `8086:1692` and works. Either the card differs or
-the driver's list grew; what is documented here is the working state.
+The older notes list an AX1690i at `8086:7A70` and describe it as swapped in by the owner. **Neither is
+correct** — the card is the factory one, and `7A70` is not this machine's ID. What the system reports
+is what to go by; that row in the old notes can be ignored entirely.
+
+Upstream [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) stops at **v2.3.0
+(2024-06)** and does not support macOS 26. The 2.4.0 here comes from **`v2.4.0-alpha`** in
+[laobamac/itlwm](https://github.com/laobamac/itlwm); the bundle identifier is still
+`com.zxystd.AirportItlwm`. **Downloading 2.3.0 from upstream will not work here** — comparison in
+[sources.en.md](sources.en.md).
 
 ### What it actually negotiates
 

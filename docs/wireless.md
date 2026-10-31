@@ -12,9 +12,11 @@
 | 启动参数 | `itlwm_he=1` |
 | 接口 | `en0` |
 
-这里必须说明版本。上游 [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) 只到 **v2.3.0（2024-06）**，不支持 macOS 26。本机的 2.4.0 来自 [laobamac/itlwm](https://github.com/laobamac/itlwm) 的 `v2.4.0-alpha`，bundle identifier 仍是 `com.zxystd.AirportItlwm`。**直接下上游 2.3.0 是装不上的**，对照见 [sources.md](sources.md)。
+这台机器的网卡是 `8086:1692`，Intel CNVi 模块，一直没换过。
 
-旧笔记里记录的是 AX1690i `8086:7A70`，那颗不在 itlwm 支持列表里；这台机器报的是 `8086:1692`，能正常工作。不管换过卡还是驱动扩了支持，这里记的是能用的状态。
+旧笔记里记的是 AX1690i `8086:7A70`，还写着「机主自己换的卡」——**这两条都不对**。网卡是原装的，`7A70` 也不是这台机器的 ID。以系统实际报的为准，旧记录那一行可以整体忽略。
+
+上游 [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) 只到 **v2.3.0（2024-06）**，不支持 macOS 26。本机的 2.4.0 来自 [laobamac/itlwm](https://github.com/laobamac/itlwm) 的 `v2.4.0-alpha`，bundle identifier 仍是 `com.zxystd.AirportItlwm`。**直接下上游 2.3.0 是装不上的**，对照见 [sources.md](sources.md)。
 
 ### 实际协商到什么
 
