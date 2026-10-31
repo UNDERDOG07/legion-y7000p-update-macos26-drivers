@@ -56,7 +56,10 @@
 | [docs/smbios.md](docs/smbios.md) | 机型与序列号，末四位决定「关于本机」显示什么 |
 | [docs/limits.md](docs/limits.md) | 这台机器做不到的事，以及为什么 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 排错路径 |
+| [docs/sources.md](docs/sources.md) | 每个 kext 的版本、上游地址，以及哪两个必须走 fork |
 | [boot-args.md](boot-args.md) | 每个启动参数干什么、为什么加、去掉会怎样 |
+
+每篇文档都有中英两版：`xxx.md` 是中文，`xxx.en.md` 是英文。
 
 ## 关键事实
 

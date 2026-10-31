@@ -1,46 +1,40 @@
-# Power, CPU and brightness
+# 电源、CPU 与亮度
 
-## Battery
+## 电池
 
-| Piece | Version |
+| 组件 | 版本 |
 |---|---|
-| `VirtualSMC.kext` | 1.3.9 |
+| [`VirtualSMC.kext`](https://github.com/acidanthera/VirtualSMC) | 1.3.9 |
 | `SMCBatteryManager.kext` | 1.3.9 |
 | `SMCProcessor.kext` | 1.3.9 |
 | `SMCSuperIO.kext` | 1.3.9 |
-| `YogaSMC.kext` | 1.5.3 |
+| [`YogaSMC.kext`](https://github.com/zhen-zen/YogaSMC) | 1.5.3 |
 | `SMCLightSensor.kext` | 1.3.9 |
 
-Battery reads correctly: design capacity 5545 mAh, current maximum 5154 mAh (93%), cycle count 76.
+电池读数是准的：设计容量 5545 mAh，当前最大 5154 mAh（93%），循环 76 次。
 
-`YogaSMC` handles the Lenovo-specific embedded controller — charge thresholds, fan tables, the extra
-sensors. It needs `SSDT-EC.aml` to expose the EC properly; without it the kext loads and does nothing.
+`YogaSMC` 处理联想自己的 EC：充电阈值、风扇表、额外的传感器。它需要 `SSDT-EC.aml` 把 EC 暴露出来，否则 kext 加载了也什么都不做。
 
-`SMCSuperIO` supplies fan and temperature data but has no interface of its own. `HWMonitorSMC2` is what
-makes it visible.
+`SMCSuperIO` 提供风扇和温度数据，但自己没有界面，要靠 `HWMonitorSMC2` 之类才能看到。
 
-## CPU topology
+## CPU 拓扑
 
-The i9-14900HX has 8 P-cores, 16 E-cores, 32 threads. macOS has no concept of an E-core, so left alone
-it treats all 24 cores as equivalent and schedules single-threaded work onto efficiency cores.
+i9-14900HX 是 8 个 P 核、16 个 E 核、32 个线程。macOS 没有 E 核的概念，不管它的话会把 24 个核当成一样的来调度，单线程任务可能被扔到能效核上。
 
-`CpuTopologyRebuild.kext` with `ctrsmt=full` fixes the presentation: E-cores become SMT siblings of
-P-cores.
+[`CpuTopologyRebuild.kext`](https://github.com/b00t0x/CpuTopologyRebuild) 配合 `ctrsmt=full` 修正呈现方式：E 核作为 P 核的 SMT 兄弟。
 
 ```bash
 sysctl -n hw.physicalcpu hw.logicalcpu    # 8  32
 sysctl -n hw.ncpu                          # 32
 ```
 
-The `8` is not missing cores. It is the intended result, and it is why the machine behaves correctly
-under load.
+那个 `8` 不是少了核。它是预期的结果，也是这台机器在高负载下表现正常的原因。
 
-## The CPU name, and how it was lost
+## CPU 名字，以及它是怎么丢的
 
-This one is worth recording in full because the cause was not where it looked.
+这个值得完整记下来，因为原因不在看起来的地方。
 
-`RestrictEvents` takes the CPU name from `revcpuname`, but only when `cpuname` appears in `revpatch`.
-The config carried both, in two different places:
+`RestrictEvents` 从 `revcpuname` 取 CPU 名，但前提是 `revpatch` 里有 `cpuname`。配置里两处都有，但分在两个地方：
 
 ```
 NVRAM[RestrictEvents GUID]   revpatch   = sbvmm,cpuname
@@ -48,37 +42,28 @@ NVRAM[RestrictEvents GUID]   revpatch   = sbvmm,cpuname
 boot-args                    revpatch   = sbvmm
 ```
 
-`boot-args` wins over NVRAM. So the `cpuname` half was never active; the name fell back to whatever
-SMBIOS reported; SMBIOS reported nothing useful; About This Mac said `Processor Name: Unknown`.
+`boot-args` 优先于 NVRAM。于是 `cpuname` 那一半从来没生效，名字回退到 SMBIOS 报的，SMBIOS 报了个空的，「关于本机」就显示 `Processor Name: Unknown`。
 
-The fix is one word:
+修法是一个词：
 
 ```
 revpatch=sbvmm,cpuname
 ```
 
-Two lessons worth carrying.
+两个教训。
 
-First, `revpatch` is a **single token**. Adding `sbvmm` to `boot-args` to fix delta updates silently
-replaced the NVRAM value that carried `cpuname`. Neither change looked related to the other.
+第一，`revpatch` 是**一个 token**。为了修增量更新往 `boot-args` 里加 `sbvmm`，等于整体替换掉了 NVRAM 里那个带 `cpuname` 的值。两次改动看起来毫无关系。
 
-Second, the symptom appeared in the same week as an OS update, which made it look like an Apple
-regression. It was not — the SMBIOS table had the correct string all along.
+第二，症状和系统更新出现在同一周，很容易被当成 Apple 的回归。实际不是——SMBIOS 表里那个字符串一直是正确的。
 
-## Brightness
+## 亮度
 
-`1401.app` includes a brightness control for the internal panel. Turn it on there and the slider works
-normally afterwards; nothing needs to be configured on the macOS side.
+`1401.app` 里内置了内屏亮度控制。在那里打开之后，滑块就正常工作了，macOS 这边不需要任何配置。
 
-That control exists because macOS has no `AppleBacklightDisplay` on this machine — the platform
-brightness path is absent altogether, and without something supplying it the panel sits at whatever the
-driver set during initialisation.
+这个控制之所以存在，是因为这台机器没有 `AppleBacklightDisplay` —— 平台的亮度通道根本不存在，没人供给的话，面板就停在驱动初始化时设定的那个值。
 
-One limitation worth knowing: with an external display mirrored, the control has no effect on the
-internal panel, because the panel is a hardware mirror at that point. Unplug the external display and it
-works again.
+一个限制值得知道：接外接屏做镜像时，这个控制对内屏不起作用，因为此时面板是硬件镜像。拔掉外接屏就恢复。
 
-## Sleep
+## 睡眠
 
-Disabled deliberately, and not because of a `pmset` setting. See [limits.md](limits.md) — the GPU does
-not survive wake, so sleeping means losing the session.
+主动关掉的，不是 `pmset` 里的某个设置。见 [limits.md](limits.md) —— GPU 熬不过唤醒，睡下去就等于丢会话。

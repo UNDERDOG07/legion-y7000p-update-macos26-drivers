@@ -1,51 +1,41 @@
-# Audio
+# 音频
 
-Speakers and the internal microphone both work, with two kexts doing the work and one device property
-tying it to the codec.
+扬声器和内置麦克风都能用。两个 kext 干活，一个设备属性把它们绑到 codec 上。
 
-## What is running
+## 在跑的东西
 
-| Piece | Version | Where |
+| 组件 | 版本 | 位置 |
 |---|---|---|
-| `AppleALC.kext` | 1.9.9 | `EFI/OC/Kexts` |
-| `SimpleHDA.kext` | 1.0.0 | `EFI/OC/Kexts` |
+| [`AppleALC.kext`](https://github.com/acidanthera/AppleALC) | 1.9.9 | `EFI/OC/Kexts` |
+| [`SimpleHDA.kext`](https://github.com/laobamac/SimpleHDA) | 1.0.0 | `EFI/OC/Kexts` |
 | `layout-id` | `99` | `DeviceProperties → Add → PciRoot(0x0)/Pci(0x1f,0x3)` |
 
-`SimpleHDA` is scoped to `MinKernel 25.0.0` / `MaxKernel 25.99.99`, which is Darwin 25 — macOS 26
-only. It does not load on anything older, and it is the piece that is specific to this OS version.
+`SimpleHDA` 的 `MinKernel 25.0.0` / `MaxKernel 25.99.99` 把它限定在 Darwin 25，也就是只有在 macOS 26 上才加载。它是这台机器上唯一与系统版本强绑定的音频组件。
 
-**What it actually patches is not documented anywhere I could find.** It is not in the upstream
-AppleALC tree and there is no public readme. What is observable: with both loaded, the codec is
-detected and both directions work; the layout is applied from the device property, not from a boot
-argument. Treat the mechanism as unknown and the result as verified.
+它的作用在项目描述里写得很直白：**restore native AppleHDA on macOS Tahoe through OpenCore and Lilu** —— 在 Tahoe 上把原生 `AppleHDA` 恢复回来。也就是说 macOS 26 改了 `AppleHDA` 的加载路径，只靠 AppleALC 补不上这一段，需要它先把框架装回去。
 
-## Verifying
+版本对照见 [sources.md](sources.md)。
+
+## 验证
 
 ```bash
 system_profiler SPAudioDataType | grep -E "Default (Output|Input)"
 ```
 
-Should return both. If output is missing, look at the codec first:
+两个都该有返回值。只有输出没有输入，往下查 codec：
 
 ```bash
 ioreg -l | grep -i "IOAudioDeviceName"
 ```
 
-If the HDA device is present but no audio device is created, the layout is wrong — try the standard
-ALC257 layouts (`11`, `13`, `99`) before anything else. The codec on this board is ALC257, driven
-through Intel SST.
+HDA 设备在、但没建出音频设备的，是 layout 不对。这块板子是 ALC257，走 Intel SST，先试标准 layout（`11`、`13`、`99`）再考虑别的。
 
-## The part that is not audio
+## 不属于音频的那部分
 
-Permissions for the microphone are a separate problem and a much nastier one. The hardware records
-fine from the command line while every GUI app gets refused, because the TCC layer never shows a
-prompt. If the microphone "does not work" in one app but `ffmpeg` can record, the audio stack is fine
-and you are in [permissions.md](permissions.md).
+麦克风**权限**是另一回事，而且麻烦得多。命令行能录、所有 GUI 应用被拒，原因在 TCC 层不弹窗。如果某个 App 用不了麦但 `ffmpeg` 能录，音频栈是好的，去看 [permissions.md](permissions.md)。
 
-## Known quirks
+## 已知情况
 
-- The input source reports as `内置麦克风` (internal microphone). Switching that name is not configurable
-  through `layout-id`.
-- Volume keys work through the standard HID path; the OSD appears normally.
-- Headphone jack detection has not been tested. The machine is used with the internal speakers and a
-  USB audio interface (FRANSUN KT02H20), which enumerates as a separate device and needs no kext.
+- 输入源显示为「内置麦克风」，这个名字不能通过 `layout-id` 改。
+- 音量键走标准 HID 路径，OSD 正常。
+- 耳机孔检测没测过。这台机器平时用内置扬声器和一个 USB 声卡（FRANSUN KT02H20），后者作为独立设备枚举，不需要 kext。

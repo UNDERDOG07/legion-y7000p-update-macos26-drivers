@@ -28,38 +28,41 @@ What it does not cover: how to install macOS.
 
 | Hardware | State | Notes | Doc |
 |---|---|---|---|
-| RTX 5060 | ✅ | Metal 3; internal panel does 240 Hz alone | [docs/gpu.md](docs/gpu.md) |
-| Audio | ✅ | Speakers and mic; SimpleHDA + `layout-id 99` | [docs/audio.md](docs/audio.md) |
-| Trackpad | ✅ | VoodooI2CHID | [docs/input.md](docs/input.md) |
-| Keyboard | ✅ | no remapping needed | [docs/input.md](docs/input.md) |
-| Wi-Fi | ✅ | 802.11ac / 80 MHz / 867 Mbps | [docs/wireless.md](docs/wireless.md) |
-| Bluetooth | ⚠️ | controllers and headphones work; other device types do not | [docs/wireless.md](docs/wireless.md) |
-| Camera | ✅ | UVC, enumerates and captures | [docs/permissions.md](docs/permissions.md) |
-| Battery | ✅ | needs SMCBatteryManager + YogaSMC | [docs/power.md](docs/power.md) |
-| CPU topology | ✅ | 8 physical / 32 logical via `ctrsmt=full` | [docs/power.md](docs/power.md) |
-| CPU name | ✅ | needs `revpatch=...,cpuname` | [docs/power.md](docs/power.md) |
-| Brightness | ✅ | built into 1401.app; no effect while mirroring | [docs/power.md](docs/power.md) |
-| Privacy prompts | ⚠️ | never appear; grants must be written by hand | [docs/permissions.md](docs/permissions.md) |
-| Delta updates | ✅ | needs `revpatch=sbvmm` | [docs/updates.md](docs/updates.md) |
-| Sleep | ❌ | GPU does not come back | [docs/limits.md](docs/limits.md) |
-| AirDrop | ❌ | AirportItlwm limitation | [docs/limits.md](docs/limits.md) |
-| Secure Boot | ❌ | both the self-signed and the shim route are closed by firmware | [docs/limits.md](docs/limits.md) |
+| RTX 5060 | ✅ | Metal 3; internal panel does 240 Hz alone | [docs/gpu.en.md](docs/gpu.en.md) |
+| Audio | ✅ | Speakers and mic; SimpleHDA + `layout-id 99` | [docs/audio.en.md](docs/audio.en.md) |
+| Trackpad | ✅ | VoodooI2CHID | [docs/input.en.md](docs/input.en.md) |
+| Keyboard | ✅ | no remapping needed | [docs/input.en.md](docs/input.en.md) |
+| Wi-Fi | ✅ | 802.11ac / 80 MHz / 867 Mbps | [docs/wireless.en.md](docs/wireless.en.md) |
+| Bluetooth | ⚠️ | controllers and headphones work; other device types do not | [docs/wireless.en.md](docs/wireless.en.md) |
+| Camera | ✅ | UVC, enumerates and captures | [docs/permissions.en.md](docs/permissions.en.md) |
+| Battery | ✅ | needs SMCBatteryManager + YogaSMC | [docs/power.en.md](docs/power.en.md) |
+| CPU topology | ✅ | 8 physical / 32 logical via `ctrsmt=full` | [docs/power.en.md](docs/power.en.md) |
+| CPU name | ✅ | needs `revpatch=...,cpuname` | [docs/power.en.md](docs/power.en.md) |
+| Brightness | ✅ | built into 1401.app; no effect while mirroring | [docs/power.en.md](docs/power.en.md) |
+| Privacy prompts | ⚠️ | never appear; grants must be written by hand | [docs/permissions.en.md](docs/permissions.en.md) |
+| Delta updates | ✅ | needs `revpatch=sbvmm` | [docs/updates.en.md](docs/updates.en.md) |
+| Sleep | ❌ | GPU does not come back | [docs/limits.en.md](docs/limits.en.md) |
+| AirDrop | ❌ | AirportItlwm limitation | [docs/limits.en.md](docs/limits.en.md) |
+| Secure Boot | ❌ | both the self-signed and the shim route are closed by firmware | [docs/limits.en.md](docs/limits.en.md) |
 
 ## Documentation
 
 | Doc | What is in it |
 |---|---|
-| [docs/gpu.md](docs/gpu.md) | NullMoth install layout, the self-repair scripts, black-screen recovery |
-| [docs/audio.md](docs/audio.md) | SimpleHDA and `layout-id`, and why AppleALC alone is not enough on 26 |
-| [docs/input.md](docs/input.md) | modifier-key mapping, trackpad |
-| [docs/wireless.md](docs/wireless.md) | Wi-Fi ax negotiation, the Bluetooth trio and `-ibtcompatbeta` |
-| [docs/power.md](docs/power.md) | battery, CPU topology, CPU name, brightness |
-| [docs/permissions.md](docs/permissions.md) | what to do when TCC never shows a prompt |
-| [docs/updates.md](docs/updates.md) | delta updates, and how `revpatch` shadows `cpuname` |
-| [docs/smbios.md](docs/smbios.md) | model and serial; the last four characters decide what About This Mac says |
-| [docs/limits.md](docs/limits.md) | what this machine cannot do, and why |
-| [docs/troubleshooting.md](docs/troubleshooting.md) | diagnosis paths |
+| [docs/gpu.en.md](docs/gpu.en.md) | NullMoth install layout, the self-repair scripts, black-screen recovery |
+| [docs/audio.en.md](docs/audio.en.md) | SimpleHDA and `layout-id`, and why AppleALC alone is not enough on 26 |
+| [docs/input.en.md](docs/input.en.md) | modifier-key mapping, trackpad |
+| [docs/wireless.en.md](docs/wireless.en.md) | Wi-Fi ax negotiation, the Bluetooth trio and `-ibtcompatbeta` |
+| [docs/power.en.md](docs/power.en.md) | battery, CPU topology, CPU name, brightness |
+| [docs/permissions.en.md](docs/permissions.en.md) | what to do when TCC never shows a prompt |
+| [docs/updates.en.md](docs/updates.en.md) | delta updates, and how `revpatch` shadows `cpuname` |
+| [docs/smbios.en.md](docs/smbios.en.md) | model and serial; the last four characters decide what About This Mac says |
+| [docs/limits.en.md](docs/limits.en.md) | what this machine cannot do, and why |
+| [docs/troubleshooting.en.md](docs/troubleshooting.en.md) | diagnosis paths |
+| [docs/sources.en.md](docs/sources.en.md) | version and upstream for every kext, and which two must come from a fork |
 | [boot-args.md](boot-args.md) | every boot argument: what it does, why it is there, what happens without it |
+
+Every document has both languages: `xxx.md` is Chinese, `xxx.en.md` is English.
 
 ## Boot arguments, in one block
 
@@ -77,7 +80,7 @@ verified as necessary from the ones that are simply carried over from the driver
 
 - **1401** — builds the boot stick, installs the NVIDIA driver, and provides the internal-panel
   brightness control. The actual source of both the EFI and the driver.
-- **tccgrant** — the finished form of the script in [docs/permissions.md](docs/permissions.md), for
+- **tccgrant** — the finished form of the script in [docs/permissions.en.md](docs/permissions.en.md), for
   granting permissions that the system refuses to ask about.
 
 ## EFI
@@ -99,14 +102,14 @@ Compared with the older repo's copy, the differences are in `boot-args` (`revpat
 
 It will boot like this, but About This Mac shows Unknown and iServices will not work. Generate a pair
 for `MacBookPro16,4` with GenSMBIOS — **the last four characters must be `MD6T`**, see
-[docs/smbios.md](docs/smbios.md) for why.
+[docs/smbios.en.md](docs/smbios.en.md) for why.
 
 The seventeen historical config backups that came with the stick (all carrying the real serial) are not
 included. Only the current configuration is here.
 
 One detail kept as-is: `Misc → Boot → HideAuxiliary` is `false` in this file, because `1401.app` reset
 it during its last settings change. The effect is two extra `1401:` entries in the picker. How to hide
-them again is in [docs/gpu.md](docs/gpu.md) — this is exactly the rewrite behaviour described there.
+them again is in [docs/gpu.en.md](docs/gpu.en.md) — this is exactly the rewrite behaviour described there.
 
 ## The older repo
 

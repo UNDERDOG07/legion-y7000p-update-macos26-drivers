@@ -1,103 +1,87 @@
-# Wi-Fi and Bluetooth
+# 无线与蓝牙
 
-Two separate stacks, two separate results: Wi-Fi is good enough to use, Bluetooth works but is the
-weaker half.
+两个独立的栈，两个不同的结果：Wi-Fi 好用，蓝牙能用但是弱的那一半。
 
 ## Wi-Fi
 
-| Piece | Value |
+| 项 | 值 |
 |---|---|
-| Card | Intel CNVi part, `8086:1692` |
-| Driver | `AirportItlwm.kext` 2.4.0 |
-| Firmware | `itlwm: 2.4.0_738d4c6 fw: 68.01d30b0c.0` |
-| Boot argument | `itlwm_he=1` |
-| Interface | `en0` |
+| 网卡 | Intel CNVi 模块，`8086:1692` |
+| 驱动 | [`AirportItlwm.kext`](https://github.com/laobamac/itlwm) 2.4.0（**fork**） |
+| 固件 | `itlwm: 2.4.0_738d4c6 fw: 68.01d30b0c.0` |
+| 启动参数 | `itlwm_he=1` |
+| 接口 | `en0` |
 
-Worth noting the ID. The older notes for this machine record an AX1690i at `8086:7A70` that was not on
-the itlwm support list at all. This machine reports `8086:1692` and works. Either the card differs or
-the driver's list grew; what is documented here is the working state.
+这里必须说明版本。上游 [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) 只到 **v2.3.0（2024-06）**，不支持 macOS 26。本机的 2.4.0 来自 [laobamac/itlwm](https://github.com/laobamac/itlwm) 的 `v2.4.0-alpha`，bundle identifier 仍是 `com.zxystd.AirportItlwm`。**直接下上游 2.3.0 是装不上的**，对照见 [sources.md](sources.md)。
 
-### What it actually negotiates
+旧笔记里记录的是 AX1690i `8086:7A70`，那颗不在 itlwm 支持列表里；这台机器报的是 `8086:1692`，能正常工作。不管换过卡还是驱动扩了支持，这里记的是能用的状态。
 
-Measured here at `-34 dBm` — a very strong signal, so the link rate is not distance-limited:
+### 实际协商到什么
 
-| Field | Value |
+在 `-34 dBm` 下测的——信号强到不能更强，所以速率不是距离限制的：
+
+| 字段 | 值 |
 |---|---|
-| PHY mode | **802.11ac** |
-| Channel | 157 (5 GHz, **80 MHz**) |
-| Tx rate | 867 Mbps |
+| PHY 模式 | **802.11ac** |
+| 信道 | 157（5 GHz，**80 MHz**） |
+| Tx 速率 | 867 Mbps |
 | MCS / NSS | 9 / 2 |
-| Country code | CN |
+| 国家代码 | CN |
 
-The card advertises `802.11 a/b/g/n/ac/ax`, and `itlwm_he=1` is set, but the link still comes up as
-802.11ac at 80 MHz. On the same access point an ax/160 MHz link would be roughly three times faster.
+网卡在 `Supported PHY Modes` 里报了 `802.11 a/b/g/n/ac/ax`，`itlwm_he=1` 也加了，但链路仍然以 ac / 80 MHz 起来。同一个 AP 上 ax / 160 MHz 大约快三倍。
 
-Before blaming the driver, check two things on the router: whether 802.11ax is enabled for the 5 GHz
-band (many default to ac compatibility) and whether 160 MHz is permitted. If both are open and it still
-negotiates ac, the limit is in the driver's HE handling.
+在怪驱动之前先查两件事：路由器 5 GHz 频段有没有开 802.11ax（很多默认只开 ac 兼容），以及允不允许 160 MHz。两个都开着还是 ac，那限制在驱动的 HE 处理上。
 
-### Checking
+### 检查
 
 ```bash
 system_profiler SPAirPortDataType | grep -E "PHY Mode|Channel"
 sudo wdutil info
 ```
 
-`wdutil` reports more than the menu bar. Holding Option and clicking the Wi-Fi icon gives the same
-fields in a dialog, including RSSI and noise — with the caveat that this driver reports noise as
-`0 dBm`, so that field is meaningless here.
+`wdutil` 比菜单栏给的多。按住 Option 点 Wi-Fi 图标也能看到同样字段，包括 RSSI 和噪声——只是这个驱动把噪声报成 `0 dBm`，那一位没有意义。
 
-### AirDrop does not work
+### AirDrop 用不了
 
-Not Bluetooth, and not fixable with kexts. AirportItlwm has no AWDL interface, which is what AirDrop,
-Handoff and Continuity all use. See [limits.md](limits.md).
+不是蓝牙问题，也不是加 kext 能解决的。AirportItlwm 没有 AWDL 接口，而 AirDrop、Handoff、Continuity 全都走它。见 [limits.md](limits.md)。
 
-## Bluetooth
+## 蓝牙
 
-| Piece | Version |
+| 组件 | 版本 |
 |---|---|
-| `IntelBluetoothFirmware.kext` | 2.5.0 |
-| `IntelBTPatcher.kext` | 2.5.0 |
-| `BlueToolFixup.kext` | 2.7.3 |
-| Boot argument | `-ibtcompatbeta` |
+| [`IntelBluetoothFirmware.kext`](https://github.com/lshbluesky/IntelBluetoothFirmware) | 2.5.0（**fork**） |
+| [`IntelBTPatcher.kext`](https://github.com/lshbluesky/IntelBluetoothFirmware) | 2.5.0（**fork**） |
+| [`BlueToolFixup.kext`](https://github.com/acidanthera/BrcmPatchRAM) | 2.7.3 |
+| 启动参数 | `-ibtcompatbeta` |
 
-Three kexts, three jobs. The firmware driver uploads the blob; `IntelBTPatcher` applies compatibility
-patches for newer macOS builds; `BlueToolFixup`, a Lilu plugin, makes the controller present itself as
-an Apple one.
+三个 kext，三件事。固件驱动上传 blob；`IntelBTPatcher` 打新版系统的兼容补丁；`BlueToolFixup` 是 Lilu 插件，让控制器伪装成 Apple 的。
 
-That last piece explains why System Information shows `Chipset: THIRD_PARTY_DONGLE` and
-`Vendor 0x004C` rather than Intel. It is deliberate — without the disguise macOS 26 does not attach the
-controller at all.
+最后这个是为什么系统信息里显示 `Chipset: THIRD_PARTY_DONGLE`、`Vendor 0x004C` 而不是 Intel。这是故意的——不伪装 macOS 26 根本不 attach。
 
-`-ibtcompatbeta` is read by `IntelBTPatcher`, not by the firmware driver. Whether it helps here is not
-settled: Bluetooth connects with it present, some BLE devices still drop, and no A/B test has been run
-with it removed.
+蓝牙同样需要 fork：上游 [OpenIntelWireless/IntelBluetoothFirmware](https://github.com/OpenIntelWireless/IntelBluetoothFirmware) 最新 v2.4.0（2024-02），本机 2.5.0 来自 [lshbluesky](https://github.com/lshbluesky/IntelBluetoothFirmware) 的 fork。
 
-### Checking
+`-ibtcompatbeta` 是 `IntelBTPatcher` 读的，不是固件驱动。它在这里有没有用还没定论：加了，蓝牙能连，部分 BLE 设备仍然掉；没有做过移除后的 A/B 对比。
+
+### 检查
 
 ```bash
 system_profiler SPBluetoothDataType | head -20
 ```
 
-`State: On` plus nearby devices means the stack is up. The firmware upload shows in the kernel log:
+`State: On` 加上附近设备列表，说明栈起来了。固件上传本身在内核日志里能看到：
 
 ```
 IOUSBHostDevice: setConfigurationGated: IntelBluetoothFirmware selected configuration 1
 ```
 
-A `kernelmanager_helper: Could not find identifier (com.zxystd.IntelBluetoothFirmware)` line is normal
-for an injected kext and is not an error.
+`kernelmanager_helper: Could not find identifier (com.zxystd.IntelBluetoothFirmware)` 是注入型 kext 的正常提示，不是错误。
 
-### What connects, and what does not
+### 能连什么，不能连什么
 
-Controllers and headphones work. Other classes of device do not — pairing either fails outright or the
-device drops straight after pairing.
+**手柄和耳机正常。其他类型的设备不行**——要么配对失败，要么连上立刻掉。
 
-That split matters, because "Bluetooth works" on its own is misleading. Two of the most common
-peripheral types are fine, and most of the rest of the category is not. A controller (GameSir G7 Pro)
-and headphones are what this machine is actually used with, and both are stable.
+这个划分值得单独说，因为单讲「蓝牙能用」是不准确的：两类最常用的外设都在能用的那一半，而这一类里的其余大部分都不在。这台机器实际配的是手柄（GameSir G7 Pro）和耳机，两个都稳定。
 
-2.4 GHz coexistence is a factor too — both antennas are in the lid, so a busy Wi-Fi link hurts
-Bluetooth range.
+2.4 GHz 共存也是因素——两个天线都在屏轴里，Wi-Fi 一忙，蓝牙距离就受影响。
 
-Handoff and Continuity do not work, for the same AWDL reason as AirDrop.
+Handoff 和 Continuity 同样不能，原因和 AirDrop 一样是 AWDL。

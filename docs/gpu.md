@@ -1,163 +1,138 @@
-# The GPU (RTX 5060 Laptop)
+# 显卡（RTX 5060 Laptop）
 
-There is no Intel iGPU driver in macOS 26, so the internal panel is only reachable through the dGPU.
-That makes the NVIDIA driver the single point of failure for the whole build: if it does not load,
-there is no picture at all.
+macOS 26 里没有任何 Intel 核显驱动，所以内屏只能走独显。这让 NVIDIA 驱动成了整台机器的单点：它不加载，就没有画面。
 
-The driver is **NullMoth 2.6.5**, installed into `/Library/Extensions` — not into the EFI. That one
-distinction explains most of what follows.
+驱动是 **NullMoth 2.6.5**，装在 `/Library/Extensions`，**不在 EFI 里**。这个区别解释了后面几乎所有问题。
 
-## What is on disk
+## 磁盘上有什么
 
-| Piece | Path | Version |
+| 组件 | 路径 | 版本 |
 |---|---|---|
-| Kernel extensions | `/Library/Extensions/{NVRM,NVAccel,NVRMFB,NVRMAGDC}.kext` | 2.6.5 |
-| Metal driver | `/Library/GPUBundles/NVMTLDriver.bundle` | 2.6.5 |
-| Shared bundle | `/Library/GPUBundles/NVIDIAShared.bundle` | — |
-| Metal allow list | `/Library/GPUBundles/nvmtl-allow.txt` | — |
-| GSP firmware | `/Library/NullMoth/nvfw/nvidia/615.78.08/` | 615.78.08 |
-| Driver state | `/Library/NullMoth/driver-version`, `os-major` | `2.6.5`, `26` |
+| 内核扩展 | `/Library/Extensions/{NVRM,NVAccel,NVRMFB,NVRMAGDC}.kext` | 2.6.5 |
+| Metal 驱动 | `/Library/GPUBundles/NVMTLDriver.bundle` | 2.6.5 |
+| 共享库 | `/Library/GPUBundles/NVIDIAShared.bundle` | — |
+| Metal 允许列表 | `/Library/GPUBundles/nvmtl-allow.txt` | — |
+| GSP 固件 | `/Library/NullMoth/nvfw/nvidia/615.78.08/` | 615.78.08 |
+| 驱动状态 | `/Library/NullMoth/driver-version`、`os-major` | `2.6.5`、`26` |
 
-The four kexts share the bundle identifier prefix `com.nullmoth.*`.
+四个 kext 的 bundle identifier 前缀都是 `com.nullmoth.*`。驱动本身不随本仓库分发，来源见 [sources.md](sources.md)。
 
-Hardware side, for cross-reference: `10DE:2D59`, subsystem `17AA:802F`, 8 GB VRAM (BAR1 8192 MB),
-PCIe x8, Metal 3.
+硬件侧供对照：`10DE:2D59`，subsystem `17AA:802F`，显存 8 GB（BAR1 8192 MB），PCIe x8，Metal 3。
 
-## Why none of it is in the EFI
+## 为什么不在 EFI 里
 
-The EFI only carries what has to exist before the kernel finishes booting: OpenCore itself, and the
-kexts the boot path needs (trackpad, Wi-Fi, Bluetooth). The GPU driver loads later, as a system
-extension.
+EFI 只放内核启动完成之前就必须存在的东西：OpenCore 本身，以及引导路径要用的 kext（触控板、无线、蓝牙）。显卡驱动是系统扩展，在内核起来之后才加载。
 
-Three consequences:
+三个直接后果：
 
-- Swapping the EFI, or editing `config.plist`, cannot fix a broken GPU driver.
-- A macOS update rebuilds the kernel collection, and the driver can fall out of it.
-- Reinstalling macOS means reinstalling the driver. It does not come from the stick.
+- 换 EFI、改 `config.plist`，都修不了显卡
+- 系统更新会重建内核集合，驱动可能掉出去
+- 重装系统要重装驱动，它不来自 U 盘
 
-> This machine got here by **upgrading** from macOS 15 to 26, and the driver survived that upgrade.
-> That was luck, not a rule. A clean install starts with an empty `/Library/Extensions`.
+> 这台机器是**从 macOS 15 升级**上来的，驱动在升级中活了下来。那是运气，不是规律。全新安装时 `/Library/Extensions` 是空的。
 
-## Install, and when it has to be done again
+## 安装，以及什么时候要重装
 
-`1401.app` is the normal path. It writes the four kexts, rebuilds the boot kernel collection, and asks
-for a restart.
+正常路径是 `1401.app`：写入四个 kext、重建启动用内核集合、要求重启。
 
-Before installing, check for leftovers:
+装之前先看有没有残留：
 
 ```bash
 ls /Library/Extensions | grep -i nv
 ```
 
-After installing, check that all four came up:
+装完确认四个都起来了：
 
 ```bash
 kmutil showloaded | grep -i nullmoth
 ```
 
-A health check that needs none of the above: `system_profiler SPDisplaysDataType` should still print
-`Metal Support: Metal 3`.
+不看这些也想快速判断的话：`system_profiler SPDisplaysDataType` 里还能打印 `Metal Support: Metal 3`，就说明活着。
 
-The driver has to go back on when:
+需要重装的时机：
 
-- macOS has been updated (the kernel collection is rebuilt)
-- the desktop drops to a low resolution, or Metal disappears
-- `kmutil showloaded | grep -i nullmoth` returns fewer than four lines
+- macOS 更新之后（内核集合重建）
+- 桌面掉到低分辨率，或者 Metal 消失
+- `kmutil showloaded | grep -i nullmoth` 少于四行
 
-## The driver repairs itself
+## 驱动会自己修自己
 
-This is new in 2.6.5 and is not in the older notes. `/Library/NullMoth/` carries three scripts that
-run without being asked:
+这是 2.6.5 才有的，旧笔记里没有。`/Library/NullMoth/` 下有三个不需要你干预的脚本：
 
-| Script | Trigger | What it does |
+| 脚本 | 触发 | 做什么 |
 |---|---|---|
-| `bootguard.sh` | LaunchDaemon at boot | Waits for `WindowServer`, confirms it is still alive after 45 s, then sets `nullmoth-nv-ok=1` in NVRAM |
-| `lastgood.sh` | LaunchDaemon at boot | If the new driver failed to bring the display up **twice**, restores the previous driver from `/Library/NullMoth/backup-<timestamp>/` |
-| `nullmoth-recover.sh` | `nullmoth-remove` flag in NVRAM | Runs `nullmoth-setup.sh --remove`, then reboots |
+| `bootguard.sh` | 开机时的 LaunchDaemon | 等 `WindowServer` 起来，确认 45 秒后还活着，然后把 `nullmoth-nv-ok=1` 写进 NVRAM |
+| `lastgood.sh` | 开机时的 LaunchDaemon | 新驱动**连续两次**没把画面带起来，就从 `/Library/NullMoth/backup-<时间戳>/` 恢复上一个版本 |
+| `nullmoth-recover.sh` | NVRAM 里有 `nullmoth-remove` 标志 | 执行 `nullmoth-setup.sh --remove`，然后自己重启 |
 
-Two things follow.
+由此有两个结论。
 
-**The "Remove NVIDIA driver" picker entry does not remove anything at boot.** It sets an NVRAM
-variable; the removal happens after macOS starts, and the machine reboots itself at the end. That is
-why it still works when the display is dead.
+**「Remove NVIDIA driver」那条 picker 选项，在启动时并不删除任何东西。** 它只是设一个 NVRAM 变量；卸载发生在 macOS 起来之后，结束时机器自己重启。这也是为什么黑屏状态下它依然有效。
 
-**A failed driver install usually rolls itself back.** `lastgood.log` is the record, one line per
-event:
+**装失败的驱动通常会自己回滚。** `lastgood.log` 就是记录，一行一次：
 
 ```
 Tue Oct 27 17:26:16 CST 2026 the new driver brought its display up; keeping it
 ```
 
-`bootguard.log` records the opposite case — the starts that counted as good, written 45 seconds after
-`WindowServer` came up.
+`bootguard.log` 记的是相反的那一类——算作成功的开机，在 `WindowServer` 起来 45 秒后写入。
 
-## Black screen: the two picker entries
+## 黑屏：两个 picker 选项
 
-They live in `Misc → Tools`, both pointing at `NullMothSafe.efi`, separated only by arguments:
+它们在 `Misc → Tools` 里，都指向 `NullMothSafe.efi`，只靠参数区分：
 
-| Entry | Arguments | Effect |
+| 条目 | Arguments | 效果 |
 |---|---|---|
-| `1401: Remove NVIDIA driver` | empty | sets the NVRAM flag → uninstall, then reboot |
-| `1401: Start once without NVIDIA driver` | `once` | skips loading the driver for this start only |
+| `1401: Remove NVIDIA driver` | 空 | 设置 NVRAM 标志 → 卸载，然后重启 |
+| `1401: Start once without NVIDIA driver` | `once` | 只这一次不加载驱动 |
 
-Both are hidden in normal use (`Auxiliary = true`). **Press space in the picker** to reveal them.
+平时两个都隐藏（`Auxiliary = true`）。**在 picker 里按空格**才会显示。
 
-Reach for the second one first: it gets you a desktop without touching the installed driver, and from
-there you can reinstall from `1401.app`.
+先试第二个：它能在不动已安装驱动的前提下进桌面，从那里再用 `1401.app` 重装。
 
-## The config.plist rewrite
+## config.plist 会被重写
 
-Every time `1401.app` changes a setting — turning on internal-panel brightness, for instance — it
-rewrites the whole `config.plist`. Two things get reset:
+每次在 `1401.app` 里改设置——比如打开内屏亮度控制——它都会整个重写 `config.plist`。有两处会被重置：
 
-- `Misc → Boot → HideAuxiliary` goes back to `false`
-- both `NullMothSafe.efi` tool entries go back to `Auxiliary = false`
+- `Misc → Boot → HideAuxiliary` 回到 `false`
+- 两个 `NullMothSafe.efi` 工具条目回到 `Auxiliary = false`
 
-Not a bug: the app does not know about flags that were set by hand. Re-apply after each change:
+不是 bug：那个 App 不知道手动设过的隐藏标记。每次改完要重新设一遍：
 
 ```
 Misc → Boot → HideAuxiliary = true
-Misc → Tools[Path = NullMothSafe.efi] → Auxiliary = true    (both entries)
+Misc → Tools[Path = NullMothSafe.efi] → Auxiliary = true    （两条都改）
 ```
 
-Hiding does not remove anything. Pressing space still brings both back.
+隐藏不影响使用，按空格照样出来。
 
-## Refresh rate and mirroring
+## 刷新率与镜像
 
-On its own, the internal panel offers 2560×1600 @ 240 Hz.
+单独使用时，内屏的模式列表里有 2560×1600 @ 240 Hz。
 
-With an external display mirrored, the panel follows the master and drops to 2560×1440 @ 60, while
-the external runs 180 Hz as the Master Mirror.
+接上外接屏做镜像，内屏跟随主屏降到 2560×1440 @ 60，外接屏作为 Master Mirror 跑 180 Hz。
 
-Brightness is dead in that state — `DisplayServices` reads back 0 and writes are ignored. Unplug the
-external display and it comes back. That is the compositor, not the GPU driver; see
-[power.md](power.md).
+这个状态下亮度调节是失效的——面板此时是硬件镜像。拔掉外接屏就恢复。那是合成器行为，不是显卡驱动的问题，见 [power.md](power.md)。
 
-## Video decode
+## 视频解码
 
-No NVDEC on this GPU under macOS, and no iGPU driver, so there is no hardware decode block in the
-path.
+这块 GPU 在 macOS 下没有 NVDEC，iGPU 也没有驱动，所以解码路径里没有硬件解码单元。
 
-VideoToolbox still has a Metal-backed route. Measured on 1080p HEVC, ten-second clip,
-`ffmpeg -benchmark`, three runs each:
+但 VideoToolbox 有一条走 Metal 的路。1080p HEVC、十秒素材、`ffmpeg -benchmark`、各跑三轮，实测：
 
-| Path | utime |
+| 路径 | utime |
 |---|---|
 | `-hwaccel videotoolbox` | 0.61 – 0.65 s |
-| CPU only (ffmpeg's own decoder) | 1.67 – 2.61 s |
+| 纯 CPU（ffmpeg 自带解码器） | 1.67 – 2.61 s |
 
-VideoToolbox is 2.5–4× faster. `VTDecoderXPCService` loads `NVMTLDriver` while it runs, so this is
-Metal-assisted software decoding, not a decode engine.
+走 VideoToolbox 快 2.5–4 倍。运行时 `VTDecoderXPCService` 会加载 `NVMTLDriver`，所以这是 Metal 参与的软件解码，不是解码引擎。
 
-H.264 goes the other way: videotoolbox 0.82 s against 0.59 s on the CPU.
+H.264 反过来：videotoolbox 0.82 s，纯 CPU 0.59 s。
 
-These numbers describe command-line decoding, not what a player will do. They are here to make one
-point: **no hardware decoder does not mean slow decoding.**
+这组数字描述的是命令行解码，不代表播放器的表现。写在这里只为说明一件事：**没有硬件解码器，不等于解码慢。**
 
-## Known limits
+## 已知限制
 
-- **DRM** — Apple TV and Netflix will not play. Not tested, and not worth testing: the driver has no
-  HDCP path.
-- **Sleep** — the GPU does not come back after wake. Whole-machine limit, see [limits.md](limits.md).
-- **External displays** hang off the dGPU's HDMI, independent of the BIOS MUX. That is also why the
-  external monitor is the only usable output when the internal panel is dark.
+- **DRM** —— Apple TV、Netflix 播不了。没测，也不值得测：驱动里没有 HDCP 路径。
+- **睡眠** —— 唤醒后 GPU 回不来。整机层面的限制，见 [limits.md](limits.md)。
+- **外接显示器**走 dGPU 的 HDMI，与 BIOS 的 MUX 无关。这也是内屏黑掉时唯一还能用的输出。
