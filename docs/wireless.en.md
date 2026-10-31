@@ -7,25 +7,13 @@ weaker half.
 
 | Piece | Value |
 |---|---|
-| Card | Intel **AX1690i** (user-replaced), `8086:1692` |
+| Card | Intel **AX1690i**, `8086:1692` |
 | Driver | [`AirportItlwm.kext`](https://github.com/laobamac/itlwm) 2.4.0 (**fork**) |
 | Firmware | `itlwm: 2.4.0_738d4c6 fw: 68.01d30b0c.0` |
 | Boot argument | `itlwm_he=1` |
 | Interface | `en0` |
 
-The card is an Intel **AX1690i**, **fitted by hand**, replacing the factory CNVi module. PCI ID
-`8086:1692`.
-
-The old notes' "fitted by the owner as a replacement for the factory card" is correct. What is wrong is
-the ID on the same row: `8086:7A70` is not this card. AX1690i is `1692`. That cell probably kept the
-factory card's value, or was copied wrong; ignore it.
-
-**Wi-Fi on this machine took two changes stacked**:
-
-1. **The card** — the factory one was outside driver support, so it was replaced with an AX1690i
-2. **The driver** — the old config used `itlwm.kext`, this one uses `AirportItlwm.kext`
-
-The difference between the two drivers:
+This machine runs `AirportItlwm`. The old config used `itlwm.kext`; the difference between the two:
 
 | | `itlwm` | `AirportItlwm` |
 |---|---|---|

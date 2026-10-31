@@ -6,6 +6,8 @@
 
 本机的 kext 全部来自 1401 的打包。其中绝大多数比上游 release **高一个修订号**（`1.7.2 → 1.7.3` 这种），少数几个更高。推测是打包时基于上游 master 重新构建并打了版本号，作者没有逐项说明，这里只记录差异。
 
+有一类例外要看清楚：`VoodooI2CHID`、`VoodooGPIO`、`VoodooI2CServices` 是 VoodooI2C 的子模块，各自有独立仓库和自己的版本号。它们的 `1.0`、`1.1` 是上游本来的编号，和 VoodooI2C 主包的 `2.9.1` 不是一套，别当成「版本很旧」。
+
 ## 完整对照
 
 | 组件 | 本机 | 上游 | 关系 |
@@ -23,7 +25,10 @@
 | BlueToolFixup | 2.7.3 | [acidanthera/BrcmPatchRAM](https://github.com/acidanthera/BrcmPatchRAM) 2.7.2 | 高 1 |
 | CpuTopologyRebuild | 2.0.2 | [b00t0x/CpuTopologyRebuild](https://github.com/b00t0x/CpuTopologyRebuild) 2.0.2 | 一致 |
 | VoodooI2C | 2.9.1 | [VoodooI2C/VoodooI2C](https://github.com/VoodooI2C/VoodooI2C) v2.9.1 | 一致 |
-| VoodooI2CHID / VoodooGPIO / VoodooI2CServices | 1.0 / 1.1 / 1.0 | 随 VoodooI2C 发布 | plugin 版本独立编号 |
+| VoodooI2CHID | 1.0 | [VoodooI2C/VoodooI2CHID](https://github.com/VoodooI2C/VoodooI2CHID) 1.0 | 一致 |
+| VoodooGPIO | 1.1 | [VoodooI2C/VoodooGPIO](https://github.com/VoodooI2C/VoodooGPIO) 1.1 | 一致 |
+| VoodooI2CServices | 1.0 | 随 VoodooI2C 发布 | 独立编号 |
+| VoodooInput（随 VoodooPS2） | 1.1.7 | [acidanthera/VoodooInput](https://github.com/acidanthera/VoodooInput) 1.1.6 | 高 1 |
 | USBToolBox | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext) 1.2.0 | 一致 |
 | UTBDefault | 1.0 | 随 USBToolBox 发布 | 端口映射 injector，版本独立 |
 | RealtekRTL8111 | 3.0.4 | [Mieze/RTL8111_driver_for_OS_X](https://github.com/Mieze/RTL8111_driver_for_OS_X) v3.0.0 | 高 3 个修订 |

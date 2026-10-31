@@ -6,22 +6,13 @@
 
 | 项 | 值 |
 |---|---|
-| 网卡 | Intel AX1690i（后换的卡），`8086:1692` |
+| 网卡 | Intel AX1690i，`8086:1692` |
 | 驱动 | [`AirportItlwm.kext`](https://github.com/laobamac/itlwm) 2.4.0（**fork**） |
 | 固件 | `itlwm: 2.4.0_738d4c6 fw: 68.01d30b0c.0` |
 | 启动参数 | `itlwm_he=1` |
 | 接口 | `en0` |
 
-网卡是 **Intel AX1690i**，**自己换上去的**，替换了原厂的 CNVi 模块。PCI ID `8086:1692`。
-
-旧笔记那句「fitted by the owner as a replacement for the factory card」是对的。但同一行的 ID 写的 `8086:7A70`，和这块卡对不上——AX1690i 是 `1692`。那一格大概是原厂卡留下的，或者抄错了，不用管它。
-
-**这台机器能上 Wi-Fi，是两件事叠起来的**：
-
-1. **换了卡** —— 原厂那块不在驱动支持范围内，换成 AX1690i
-2. **换了驱动** —— 旧配置用 `itlwm.kext`，新配置用 `AirportItlwm.kext`
-
-两者的差别在这儿：
+这台机器走的是 `AirportItlwm`。旧配置用的是 `itlwm.kext`，两者的差别在这儿：
 
 | | `itlwm` | `AirportItlwm` |
 |---|---|---|

@@ -32,7 +32,7 @@ What it does not cover: how to install macOS.
 | Audio | ✅ | SimpleHDA restores AppleHDA so AppleALC + `layout-id 99` can take over | [docs/audio.en.md](docs/audio.en.md) |
 | Trackpad | ✅ | VoodooI2CHID, with VoodooInput taken from VoodooPS2 | [docs/input.en.md](docs/input.en.md) |
 | Keyboard | ✅ | no remapping needed | [docs/input.en.md](docs/input.en.md) |
-| Wi-Fi | ✅ | AX1690i (user-replaced) + `AirportItlwm` | [docs/wireless.en.md](docs/wireless.en.md) |
+| Wi-Fi | ✅ | AX1690i, driven by `AirportItlwm` | [docs/wireless.en.md](docs/wireless.en.md) |
 | Bluetooth | ⚠️ | controllers and headphones work; other device types do not | [docs/wireless.en.md](docs/wireless.en.md) |
 | Camera | ✅ | UVC, enumerates and captures | [docs/permissions.en.md](docs/permissions.en.md) |
 | Battery | ✅ | needs SMCBatteryManager + YogaSMC | [docs/power.en.md](docs/power.en.md) |

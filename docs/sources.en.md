@@ -10,6 +10,11 @@ release — `1.7.2 → 1.7.3` and so on — with a few further ahead. The likely
 package rebuilds from upstream master and bumps the version, but the author does not say so per item.
 What follows is the measured difference.
 
+One exception is worth reading carefully. `VoodooI2CHID`, `VoodooGPIO` and `VoodooI2CServices` are
+submodules of VoodooI2C, each in its own repository with its own version number. Their `1.0` and `1.1`
+are the upstream numbers; they are not on the same scale as the `2.9.1` of the VoodooI2C package, so do
+not read them as "an old build".
+
 ## Full comparison
 
 | Component | Here | Upstream | Relation |
@@ -27,7 +32,10 @@ What follows is the measured difference.
 | BlueToolFixup | 2.7.3 | [acidanthera/BrcmPatchRAM](https://github.com/acidanthera/BrcmPatchRAM) 2.7.2 | one ahead |
 | CpuTopologyRebuild | 2.0.2 | [b00t0x/CpuTopologyRebuild](https://github.com/b00t0x/CpuTopologyRebuild) 2.0.2 | same |
 | VoodooI2C | 2.9.1 | [VoodooI2C/VoodooI2C](https://github.com/VoodooI2C/VoodooI2C) v2.9.1 | same |
-| VoodooI2CHID / VoodooGPIO / VoodooI2CServices | 1.0 / 1.1 / 1.0 | shipped with VoodooI2C | plugins are numbered separately |
+| VoodooI2CHID | 1.0 | [VoodooI2C/VoodooI2CHID](https://github.com/VoodooI2C/VoodooI2CHID) 1.0 | same |
+| VoodooGPIO | 1.1 | [VoodooI2C/VoodooGPIO](https://github.com/VoodooI2C/VoodooGPIO) 1.1 | same |
+| VoodooI2CServices | 1.0 | shipped with VoodooI2C | numbered separately |
+| VoodooInput (with VoodooPS2) | 1.1.7 | [acidanthera/VoodooInput](https://github.com/acidanthera/VoodooInput) 1.1.6 | one ahead |
 | USBToolBox | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext) 1.2.0 | same |
 | UTBDefault | 1.0 | shipped with USBToolBox | port-map injector, numbered separately |
 | RealtekRTL8111 | 3.0.4 | [Mieze/RTL8111_driver_for_OS_X](https://github.com/Mieze/RTL8111_driver_for_OS_X) v3.0.0 | three revisions ahead |
