@@ -40,6 +40,17 @@ revpatch=sbvmm,cpuname
 
 如果还是完整包，去读 `install.log` 和下载前后的 `softwareupdated` 记录，找具体的拒绝原因，别猜。
 
+## 装了 AirDrop 之后多一条
+
+`BTLEAdvFixup` 会改写 `bluetoothd` 的代码页。更新程序校验这个文件时读到的是打过补丁的内容，判定文件被改动，增量更新同样失败——和 `revpatch` 那条是两回事，需要各自处理。
+
+每次更新前：
+
+1. 从 `boot-args` 去掉 `-btleadv`（或把 `BTLEAdvFixup` 条目设成 `Enabled=false`）
+2. 重启，正常进系统
+3. 再做更新
+4. 更新完先确认新版本仍在驱动支持列表内，再把 `-btleadv` 加回去
+
 ## 更新之后会坏什么
 
 - **显卡驱动。** 内核集合被重建。用 `kmutil showloaded | grep -i nullmoth` 看，少于四行就用 `1401.app` 重装。

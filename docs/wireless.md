@@ -49,26 +49,60 @@ sudo wdutil info
 
 `wdutil` 比菜单栏给的多。按住 Option 点 Wi-Fi 图标也能看到同样字段，包括 RSSI 和噪声——只是这个驱动把噪声报成 `0 dBm`，那一位没有意义。
 
-### AirDrop 用不了
+### AirDrop
 
-不是蓝牙问题，也不是加 kext 能解决的。AirportItlwm 没有 AWDL 接口，而 AirDrop、Handoff、Continuity 全都走它。见 [limits.md](limits.md)。
+**能用，双向，但慢。** 前提是换驱动：`AirportItlwm` 没有 AWDL 接口，换成 [ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm)。
+
+| 组件 | 版本 | 说明 |
+|---|---|---|
+| `ForbiddenItlwm.kext` | 0.4.1-beta1 | 替换 AirportItlwm |
+| `BTLEAdvFixup.kext` | 0.8.3 | Lilu 插件，接管 IntelBTPatcher 的钩子 |
+| 启动参数 | 18 个 | 见 [boot-args.md](../boot-args.md) |
+
+三条硬性要求，任一条不满足都不工作：
+
+1. **两个 Wi-Fi 驱动不能同时启用。** 它们共用 class 名。`AirportItlwm.kext` 文件留在 `Kexts` 里（回退方便），条目设 `Enabled=false`
+2. **`IntelBTPatcher` 必须禁用。** 它和 `BTLEAdvFixup` 钩同一个函数，同时启用会让 Lilu panic
+3. **两个新 kext 限定在 Tahoe。** `MinKernel 25.0.0` / `MaxKernel 25.99.99`，防止换系统启动时加载错版本
+
+实测状态（26.7.2、国家码 CN）：
+
+```
+ItlwmAWDLBuildCheck            verified
+ITLAWDLCoexAdded               Yes
+ITLAWDLCoexCountryLearned      Yes
+ITLAWDLCoexChannel             6      期望 149
+ITLAWDLCoexOwnWidth            20     期望 80
+ITLAWDLCoexPeerPresentEntries  1      共 16 个时隙
+ITLAWDLCoexTxSubmitErrors      0
+BTLEAdvHookRouted              1
+```
+
+监听器落在 6 信道，这是传输慢的直接原因，展开见 [limits.md](limits.md)。
+
+**更新 macOS 之前，先去掉 `-btleadv` 启动一次。** `BTLEAdvFixup` 改写 `bluetoothd` 的代码页，更新程序校验该文件时会失败，增量更新会退回全量包。
+
+**完成第一次传输之前，`TransportReady` 是 `No`、`DataCopyAttempts` 是 0，这是正常状态**，不代表驱动没工作。
 
 ## 蓝牙
 
-| 组件 | 版本 |
-|---|---|
-| [`IntelBluetoothFirmware.kext`](https://github.com/lshbluesky/IntelBluetoothFirmware) | 2.5.0（**fork**） |
-| [`IntelBTPatcher.kext`](https://github.com/lshbluesky/IntelBluetoothFirmware) | 2.5.0（**fork**） |
-| [`BlueToolFixup.kext`](https://github.com/acidanthera/BrcmPatchRAM) | 2.7.3 |
-| 启动参数 | `-ibtcompatbeta` |
+| 组件 | 版本 | 状态 |
+|---|---|---|
+| [`IntelBluetoothFirmware.kext`](https://github.com/lshbluesky/IntelBluetoothFirmware) | 2.5.0（**fork**） | 启用 |
+| [`IntelBTPatcher.kext`](https://github.com/lshbluesky/IntelBluetoothFirmware) | 2.5.0（**fork**） | **禁用**（与 BTLEAdvFixup 冲突） |
+| `BTLEAdvFixup.kext` | 0.8.3 | 启用（AirDrop 需要） |
+| [`BlueToolFixup.kext`](https://github.com/acidanthera/BrcmPatchRAM) | 2.7.3 | 启用 |
+| 启动参数 | `-ibtcompatbeta`、`-btleadv` | 见下 |
 
-三个 kext，三件事。固件驱动上传 blob；`IntelBTPatcher` 打新版系统的兼容补丁；`BlueToolFixup` 是 Lilu 插件，让控制器伪装成 Apple 的。
+三个常驻 kext，三件事。固件驱动上传 blob；`BTLEAdvFixup` 打 `bluetoothd` 的补丁（原来由 `IntelBTPatcher` 承担）；`BlueToolFixup` 是 Lilu 插件，让控制器伪装成 Apple 的。
 
 最后这个是为什么系统信息里显示 `Chipset: THIRD_PARTY_DONGLE`、`Vendor 0x004C` 而不是 Intel。这是故意的——不伪装 macOS 26 根本不 attach。
 
 蓝牙同样需要 fork：上游 [OpenIntelWireless/IntelBluetoothFirmware](https://github.com/OpenIntelWireless/IntelBluetoothFirmware) 最新 v2.4.0（2024-02），本机 2.5.0 来自 [lshbluesky](https://github.com/lshbluesky/IntelBluetoothFirmware) 的 fork。
 
-`-ibtcompatbeta` 是 `IntelBTPatcher` 读的，不是固件驱动。它在这里有没有用还没定论：加了，蓝牙能连，部分 BLE 设备仍然掉；没有做过移除后的 A/B 对比。
+`-ibtcompatbeta` 是 `IntelBTPatcher` 读的参数，不是固件驱动。**现在这条参数是空的**——`IntelBTPatcher` 已禁用，没人解析它。留着是为了回退到旧配置时不用再改一次；当前配置下它不起作用。
+
+`-btleadv` 由 `BTLEAdvFixup` 读取，是 AirDrop 找设备的前提。去掉它，iPhone 就发现不了这台 Mac。
 
 ### 检查
 
@@ -92,4 +126,4 @@ IOUSBHostDevice: setConfigurationGated: IntelBluetoothFirmware selected configur
 
 2.4 GHz 共存也是因素——两个天线都在屏轴里，Wi-Fi 一忙，蓝牙距离就受影响。
 
-Handoff 和 Continuity 同样不能，原因和 AirDrop 一样是 AWDL。
+Handoff 和 Continuity 没有测。它们同样依赖 AWDL，条件应该和 AirDrop 一样。

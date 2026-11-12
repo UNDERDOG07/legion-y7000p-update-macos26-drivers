@@ -2,11 +2,20 @@
 
 Fourteen arguments, in the order they sit in `boot-args`:
 
+Thirty-two. The first fourteen are the base, the last eighteen are the AirDrop increment, in
+`boot-args` order:
+
 ```
 debug=0x100 keepsyms=1 -vi2c-force-polling ctrsmt=full
 nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth
 amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0
 itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
+
+# added for AirDrop (ForbiddenItlwm):
+-btleadv -itlawdlcoexprobe -itlawdliface -itlawdlnativeup -itlawdlcoexrx
+-itlawdlcoextx -itlawdlcoexmulti -itlawdlcoexdata -itlawdlmitx -itlawdlelicit
+-itlawdlcaps -itlawdlsvcmerge -itlawdlawsync itlawdlintcoal=4
+-itlawdlcoexbatx -itlawdlcoexpeerpause -itlawdlcoexbatrace itlawdltxqueue=4096
 ```
 
 They fall into groups, and the confidence level differs per group. Some were tested by taking them out
@@ -56,9 +65,30 @@ and reports it in `Supported PHY Modes`. In practice this machine still associat
 argument is present for the capability rather than for a measurable gain — see
 [wireless.md](docs/wireless.md) for the measurements.
 
-`-ibtcompatbeta` is read by `IntelBTPatcher`, not by the firmware driver. It enables the compatibility
-patch for beta macOS builds. It was added after Bluetooth started dropping devices on 26; whether it
-helped is not settled: present, effect unconfirmed.
+`-ibtcompatbeta` is read by `IntelBTPatcher`, not by the firmware driver. **In the current
+configuration it does nothing**: `IntelBTPatcher` is disabled to make room for `BTLEAdvFixup`, so
+nothing parses the flag. It stays only so that reverting needs one less edit.
+
+### The eighteen AirDrop flags
+
+This group only means anything under `ForbiddenItlwm`. It is copied verbatim from the "tested set" in
+the author's `docs/BOOT-FLAGS.md`; no removal test has been run on any of them, so **what each one
+claims to do is documented, but which of them this machine actually needs is not known.**
+
+| Group | Flags | Claimed effect |
+|---|---|---|
+| Interface and listener | `-itlawdliface` `-itlawdlcoexprobe` `-itlawdlnativeup` `-itlawdlcoexrx` `-itlawdlcoextx` | creates `awdl0`, opens a second firmware context, lets macOS's AWDL peer manager start, receives frames, gives the listener its own queue |
+| Coexistence scheduling | `-itlawdlcoexmulti` `itlawdlintcoal=4` `-itlawdlcoexpeerpause` `-itlawdlcoexbatx` `itlawdltxqueue=4096` | puts the listener on its own channel, shortens interrupt coalescing, pauses the peer queue while it is away, outbound Block Ack, transmit queue size |
+| Announcement and discovery | `-itlawdlmitx` `-itlawdlelicit` `-itlawdlcaps` `-itlawdlsvcmerge` `-itlawdlawsync` | sends the Mac's own AWDL announcement, adds the fields Apple devices expect, reports two spatial streams and VHT, merges service records, aligns with the peer's availability windows |
+| Data path | `-itlawdlcoexdata` `-itlawdlcoexbatrace` | carries AirDrop data both directions; the second only records Block Ack events in the I/O Registry, for diagnosis |
+| Bluetooth | `-btleadv` | turns on `BTLEAdvFixup`, which is how the iPhone finds this Mac over BLE |
+
+Two consequences:
+
+- **Remove `-btleadv` before updating macOS**, or the delta update may fail. See
+  [docs/updates.en.md](docs/updates.en.md)
+- Going back to `AirportItlwm`, remove all eighteen. They do no harm, but they do nothing there and
+  only make the configuration look more complex than it is
 
 ## Updates and the CPU name
 

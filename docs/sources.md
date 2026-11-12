@@ -34,7 +34,9 @@
 | RealtekRTL8111 | 3.0.4 | [Mieze/RTL8111_driver_for_OS_X](https://github.com/Mieze/RTL8111_driver_for_OS_X) v3.0.0 | 高 3 个修订 |
 | YogaSMC | 1.5.3 | [zhen-zen/YogaSMC](https://github.com/zhen-zen/YogaSMC) 1.5.3 | 一致 |
 | SimpleHDA | 1.0.0 | [laobamac/SimpleHDA](https://github.com/laobamac/SimpleHDA) v1.0.0 | 一致 |
-| AirportItlwm | 2.4.0 | **[laobamac/itlwm](https://github.com/laobamac/itlwm)** `v2.4.0-alpha` | **fork**，见下 |
+| AirportItlwm | 2.4.0 | **[laobamac/itlwm](https://github.com/laobamac/itlwm)** `v2.4.0-alpha` | **fork**，当前**禁用**（留作回退） |
+| ForbiddenItlwm | 0.4.1-beta1 | **[retropineaple/ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm)** `v0.4.1-beta1` | **fork**，AirDrop；启用 |
+| BTLEAdvFixup | 0.8.3 | 同上 | AirDrop 配套，启用 |
 | IntelBluetoothFirmware / IntelBTPatcher | 2.5.0 | **[lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware)** v2.5.0 | **fork**，见下 |
 | AMFIPass | 1.4.1 | 原仓库 `dhinakg/AMFIPass` 已 404 | 无可用上游 |
 | XHCI-unsupported | 0.9.2 | RehabMan 原仓库已删除 | 无可用上游 |
@@ -51,13 +53,17 @@
 
 三者都不在本仓库，也不在 EFI 里。装载位置和重装时机见 [gpu.md](gpu.md)。
 
-## Wi-Fi：必须走 fork
+## Wi-Fi：两层 fork
 
 上游 [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) 的最新发布是 **v2.3.0（2024-06）**，不支持 macOS 26。
 
-本机的 2.4.0 来自 [laobamac/itlwm](https://github.com/laobamac/itlwm) 的 **`v2.4.0-alpha`**。这是同一作者谱系的延续——bundle identifier 仍然是 `com.zxystd.AirportItlwm`，作者 `zxystd` 就是 OpenIntelWireless 的维护者。
+**第一层**：[laobamac/itlwm](https://github.com/laobamac/itlwm) 的 **`v2.4.0-alpha`** 让 Intel 网卡在 Tahoe 上工作。bundle identifier 仍是 `com.zxystd.AirportItlwm`，`zxystd` 就是 OpenIntelWireless 的维护者，属同一谱系。
 
-**直接去上游下 2.3.0 装不上去**，这台机器能连 Wi-Fi 靠的是这个 alpha 分支。
+**第二层**：[retropineaple/ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm) 在 laobamac 的 **2.4.1** 基础上加 AWDL（AirDrop 依赖的接口）。本机用的是 `v0.4.1-beta1` 的 Tahoe 构建，固件串里因此写着 `itlwm: 2.4.1_forbidden`。
+
+当前生效的是第二层，`AirportItlwm.kext` 保留在 `Kexts` 里但已禁用，回退时换回来即可。
+
+**直接去上游下 2.3.0 装不上去**，中间隔着这两层。
 
 ## 蓝牙：同样必须走 fork
 

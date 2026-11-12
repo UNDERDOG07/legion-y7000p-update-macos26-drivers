@@ -42,7 +42,7 @@ What it does not cover: how to install macOS.
 | Privacy prompts | ⚠️ | never appear; grants must be written by hand | [docs/permissions.en.md](docs/permissions.en.md) |
 | Delta updates | ✅ | needs `revpatch=sbvmm` | [docs/updates.en.md](docs/updates.en.md) |
 | Sleep | ❌ | GPU does not come back | [docs/limits.en.md](docs/limits.en.md) |
-| AirDrop | ❌ | AirportItlwm limitation | [docs/limits.en.md](docs/limits.en.md) |
+| AirDrop | ⚠️ | works both ways with ForbiddenItlwm; listener falls back to channel 6, slow | [docs/limits.en.md](docs/limits.en.md) |
 | Secure Boot | ❌ | both the self-signed and the shim route are closed by firmware | [docs/limits.en.md](docs/limits.en.md) |
 
 ## Documentation
@@ -52,14 +52,14 @@ What it does not cover: how to install macOS.
 | [docs/gpu.en.md](docs/gpu.en.md) | NullMoth install layout, the self-repair scripts, black-screen recovery |
 | [docs/audio.en.md](docs/audio.en.md) | SimpleHDA and `layout-id`, and why AppleALC alone is not enough on 26 |
 | [docs/input.en.md](docs/input.en.md) | modifier-key mapping, trackpad |
-| [docs/wireless.en.md](docs/wireless.en.md) | Wi-Fi ax negotiation, the Bluetooth trio and `-ibtcompatbeta` |
+| [docs/wireless.en.md](docs/wireless.en.md) | Wi-Fi ax negotiation, the driver swap for AirDrop, the Bluetooth trio |
 | [docs/power.en.md](docs/power.en.md) | battery, CPU topology, CPU name, brightness |
 | [docs/permissions.en.md](docs/permissions.en.md) | what to do when TCC never shows a prompt |
 | [docs/updates.en.md](docs/updates.en.md) | delta updates, and how `revpatch` shadows `cpuname` |
 | [docs/smbios.en.md](docs/smbios.en.md) | model and serial; the last four characters decide what About This Mac says |
 | [docs/limits.en.md](docs/limits.en.md) | what this machine cannot do, and why |
 | [docs/troubleshooting.en.md](docs/troubleshooting.en.md) | diagnosis paths |
-| [docs/sources.en.md](docs/sources.en.md) | version and upstream for every kext, and which two must come from a fork |
+| [docs/sources.en.md](docs/sources.en.md) | version and upstream for every kext, and which ones must come from a fork |
 | [boot-args.en.md](boot-args.en.md) | every boot argument: what it does, why it is there, what happens without it |
 
 Every document has both languages: `xxx.md` is Chinese, `xxx.en.md` is English.
@@ -71,6 +71,12 @@ debug=0x100 keepsyms=1 -vi2c-force-polling ctrsmt=full
 nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth
 amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0
 itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
+
+# added for AirDrop (ForbiddenItlwm):
+-btleadv -itlawdlcoexprobe -itlawdliface -itlawdlnativeup -itlawdlcoexrx
+-itlawdlcoextx -itlawdlcoexmulti -itlawdlcoexdata -itlawdlmitx -itlawdlelicit
+-itlawdlcaps -itlawdlsvcmerge -itlawdlawsync itlawdlintcoal=4
+-itlawdlcoexbatx -itlawdlcoexpeerpause -itlawdlcoexbatrace itlawdltxqueue=4096
 ```
 
 [boot-args.en.md](boot-args.en.md) goes through them one at a time, and separates the ones that were

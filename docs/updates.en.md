@@ -46,6 +46,20 @@ The only reliable test is the update itself:
 If it is still full, read `install.log` and the `softwareupdated` entries around the download for the
 actual rejection reason rather than guessing.
 
+## After AirDrop, one more step
+
+`BTLEAdvFixup` patches `bluetoothd`'s code pages. An update that verifies that file reads the patched
+bytes, concludes the file was modified, and the delta update fails. This is separate from the
+`revpatch` requirement and has to be handled on its own.
+
+Before every macOS update:
+
+1. Remove `-btleadv` from `boot-args` (or set the `BTLEAdvFixup` entry to `Enabled=false`)
+2. Reboot and reach the desktop
+3. Then run the update
+4. Afterwards, confirm the new build is still in the driver's supported list before putting `-btleadv`
+   back
+
 ## What breaks after an update
 
 - **GPU driver.** The kernel collection is rebuilt; check `kmutil showloaded | grep -i nullmoth` and

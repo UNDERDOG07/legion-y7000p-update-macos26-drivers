@@ -59,31 +59,74 @@ sudo wdutil info
 fields in a dialog, including RSSI and noise — with the caveat that this driver reports noise as
 `0 dBm`, so that field is meaningless here.
 
-### AirDrop does not work
+### AirDrop
 
-Not Bluetooth, and not fixable with kexts. AirportItlwm has no AWDL interface, which is what AirDrop,
-Handoff and Continuity all use. See [limits.md](limits.md).
+**It works, both directions, slowly.** It requires a different driver: `AirportItlwm` has no AWDL
+interface, so the Wi-Fi kext is replaced with
+[ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm).
+
+| Piece | Version | Role |
+|---|---|---|
+| `ForbiddenItlwm.kext` | 0.4.1-beta1 | replaces AirportItlwm |
+| `BTLEAdvFixup.kext` | 0.8.3 | Lilu plugin, takes over IntelBTPatcher's hook |
+| Boot arguments | 18 of them | see [boot-args.en.md](../boot-args.en.md) |
+
+Three hard requirements; miss one and it does not work:
+
+1. **The two Wi-Fi drivers cannot both be enabled.** They share class names. `AirportItlwm.kext` stays
+   in `Kexts` for rollback, with its entry set to `Enabled=false`
+2. **`IntelBTPatcher` must be disabled.** It and `BTLEAdvFixup` hook the same function, and having both
+   loaded makes Lilu panic
+3. **Both new kexts are limited to Tahoe** — `MinKernel 25.0.0` / `MaxKernel 25.99.99` — so booting
+   another macOS version from this stick cannot load the wrong build
+
+Measured state (26.7.2, country CN):
+
+```
+ItlwmAWDLBuildCheck            verified
+ITLAWDLCoexAdded               Yes
+ITLAWDLCoexCountryLearned      Yes
+ITLAWDLCoexChannel             6      expected 149
+ITLAWDLCoexOwnWidth            20     expected 80
+ITLAWDLCoexPeerPresentEntries  1      of 16 slots
+ITLAWDLCoexTxSubmitErrors      0
+BTLEAdvHookRouted              1
+```
+
+The listener sits on channel 6, which is the direct cause of the slow transfers. Details in
+[limits.en.md](limits.en.md).
+
+**Before updating macOS, boot once without `-btleadv`.** `BTLEAdvFixup` patches `bluetoothd`'s code
+pages; an update that verifies that file will fail, and the delta update falls back to the full
+installer.
+
+**Until the first transfer completes, `TransportReady` reads `No` and `DataCopyAttempts` stays at 0.**
+That is normal and does not mean the driver is idle.
 
 ## Bluetooth
 
-| Piece | Version |
-|---|---|
-| `IntelBluetoothFirmware.kext` | 2.5.0 |
-| `IntelBTPatcher.kext` | 2.5.0 |
-| `BlueToolFixup.kext` | 2.7.3 |
-| Boot argument | `-ibtcompatbeta` |
+| Piece | Version | State |
+|---|---|---|
+| `IntelBluetoothFirmware.kext` | 2.5.0 (fork) | enabled |
+| `IntelBTPatcher.kext` | 2.5.0 (fork) | **disabled** (conflicts with BTLEAdvFixup) |
+| `BTLEAdvFixup.kext` | 0.8.3 | enabled (AirDrop needs it) |
+| `BlueToolFixup.kext` | 2.7.3 | enabled |
+| Boot arguments | `-ibtcompatbeta`, `-btleadv` | see below |
 
-Three kexts, three jobs. The firmware driver uploads the blob; `IntelBTPatcher` applies compatibility
-patches for newer macOS builds; `BlueToolFixup`, a Lilu plugin, makes the controller present itself as
-an Apple one.
+Three resident kexts, three jobs. The firmware driver uploads the blob; `BTLEAdvFixup` patches
+`bluetoothd` (a job `IntelBTPatcher` used to do); `BlueToolFixup`, a Lilu plugin, makes the controller
+present itself as an Apple one.
 
 That last piece explains why System Information shows `Chipset: THIRD_PARTY_DONGLE` and
 `Vendor 0x004C` rather than Intel. It is deliberate — without the disguise macOS 26 does not attach the
 controller at all.
 
-`-ibtcompatbeta` is read by `IntelBTPatcher`, not by the firmware driver. Whether it helps here is not
-settled: Bluetooth connects with it present, some BLE devices still drop, and no A/B test has been run
-with it removed.
+`-ibtcompatbeta` is read by `IntelBTPatcher`, not by the firmware driver. **Right now the flag does
+nothing** — `IntelBTPatcher` is disabled, so nothing parses it. It is left in place so that reverting to
+the old configuration does not require another edit.
+
+`-btleadv` is read by `BTLEAdvFixup` and is the prerequisite for AirDrop discovery. Without it the
+iPhone never sees this Mac.
 
 ### Checking
 
@@ -112,4 +155,4 @@ and headphones are what this machine is actually used with, and both are stable.
 2.4 GHz coexistence is a factor too — both antennas are in the lid, so a busy Wi-Fi link hurts
 Bluetooth range.
 
-Handoff and Continuity do not work, for the same AWDL reason as AirDrop.
+Handoff and Continuity were not tested. They use AWDL as well, so the conditions should match AirDrop.

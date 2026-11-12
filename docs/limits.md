@@ -14,11 +14,27 @@ GPU 回不来。唤醒之后内屏是黑的，外接输出要么没有、要么�
 sudo pmset -a sleep 0
 ```
 
-## AirDrop、Handoff、Continuity
+## AirDrop
 
-三个都依赖 AWDL，那个点对点 Wi-Fi 接口。AirportItlwm 没有实现它，EFI 设置或 kext 都补不回来。
+**能用，但慢。** 换 [ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm) 之后双向都能发，代价是速度和稳定性都只有实验水平。
+
+瓶颈在信道。监听器没有拿到 149 / 80 MHz，落在 6 信道 20 MHz：
+
+```
+ITLAWDLCoexChannel        6
+ITLAWDLCoexOwnWidth       20
+ITLAWDLCoexPeerPresentEntries   1     （共 16 个时隙）
+```
+
+`1/16` 是 iPhone 分给这个信道的空中时间，约 6%。小文件没问题，大文件会明显慢。
+
+驱动不会去覆盖固件的信道决定，作者文档里写明 `itlwm_cc` 也帮不上。可能的原因是国家码下 149–161 不允许，或只允许 20/40 MHz。这一层不是配置能改的。
+
+安装和参数见 [wireless.md](wireless.md)。
 
 **不是蓝牙的问题。** 症状（近处设备之间传不了文件）读起来像蓝牙问题，会把人带偏。
+
+Handoff 和 Continuity 没有测。它们同样依赖 AWDL，理论上和 AirDrop 一个处境。
 
 ## Secure Boot
 

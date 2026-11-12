@@ -18,13 +18,34 @@ Practical answer: turn sleep off and use the lid as a screen-off switch.
 sudo pmset -a sleep 0
 ```
 
-## AirDrop, Handoff, Continuity
+## AirDrop
 
-All three ride on AWDL, the peer-to-peer Wi-Fi interface. AirportItlwm does not implement it, and no
-EFI setting or kext brings it back.
+**It works, slowly.** With [ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm) installed,
+sending works in both directions. Speed and stability are at experimental level.
+
+The bottleneck is the channel. The listener never gets 149 at 80 MHz and falls back to channel 6 at
+20 MHz:
+
+```
+ITLAWDLCoexChannel        6
+ITLAWDLCoexOwnWidth       20
+ITLAWDLCoexPeerPresentEntries   1     (out of 16 slots)
+```
+
+That 1/16 is the airtime the iPhone grants on the listener's channel — about 6%. Small files are fine;
+large ones are visibly slow.
+
+The driver does not override the firmware's channel decision, and the author's docs state that
+`itlwm_cc` does not help either. The likely reason is that the regulatory table for this country does
+not allow 149–161, or allows them only at 20/40 MHz. That layer is not reachable from configuration.
+
+Installation and flags are in [wireless.en.md](wireless.en.md).
 
 Bluetooth is not the cause. The symptom — nearby devices that will not exchange files — reads like a
 Bluetooth problem and sends people down the wrong path.
+
+Handoff and Continuity were not tested. They ride on AWDL too, so they are presumably in the same
+position.
 
 ## Secure Boot
 

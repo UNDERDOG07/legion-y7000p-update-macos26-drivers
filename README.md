@@ -39,7 +39,7 @@
 | 隐私授权 | ⚠️ | 不弹窗，只能手动写库 | [docs/permissions.md](docs/permissions.md) |
 | 增量更新 | ✅ | 需要 `revpatch=sbvmm` | [docs/updates.md](docs/updates.md) |
 | 睡眠 | ❌ | 唤醒后显卡回不来 | [docs/limits.md](docs/limits.md) |
-| AirDrop | ❌ | AirportItlwm 不支持 | [docs/limits.md](docs/limits.md) |
+| AirDrop | ⚠️ | 换 ForbiddenItlwm 后双向可用；监听器回落 6 信道，慢 | [docs/limits.md](docs/limits.md) |
 | Secure Boot | ❌ | 自签与 shim 两条路都被固件封死 | [docs/limits.md](docs/limits.md) |
 
 ## 文档索引
@@ -49,14 +49,14 @@
 | [docs/gpu.md](docs/gpu.md) | NullMoth 装在哪些路径、自愈脚本、黑屏怎么救 |
 | [docs/audio.md](docs/audio.md) | SimpleHDA 与 `layout-id`，以及 26 上为什么不能只靠 AppleALC |
 | [docs/input.md](docs/input.md) | 修饰键映射、触控板 |
-| [docs/wireless.md](docs/wireless.md) | Wi-Fi 的 ax 协商、蓝牙三件套与 `-ibtcompatbeta` |
+| [docs/wireless.md](docs/wireless.md) | Wi-Fi 的 ax 协商、AirDrop 换驱动、蓝牙三件套 |
 | [docs/power.md](docs/power.md) | 电池、CPU 拓扑、CPU 名称、亮度 |
 | [docs/permissions.md](docs/permissions.md) | 系统不弹授权窗时怎么办 |
 | [docs/updates.md](docs/updates.md) | 增量更新，以及 `revpatch` 顶掉 `cpuname` 的连带效应 |
 | [docs/smbios.md](docs/smbios.md) | 机型与序列号，末四位决定「关于本机」显示什么 |
 | [docs/limits.md](docs/limits.md) | 这台机器做不到的事，以及为什么 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 排错路径 |
-| [docs/sources.md](docs/sources.md) | 每个 kext 的版本、上游地址，以及哪两个必须走 fork |
+| [docs/sources.md](docs/sources.md) | 每个 kext 的版本、上游地址，以及哪些必须走 fork |
 | [boot-args.md](boot-args.md) | 每个启动参数干什么、为什么加、去掉会怎样 |
 
 每篇文档都有中英两版：`xxx.md` 是中文，`xxx.en.md` 是英文。
@@ -68,6 +68,7 @@
 - **系统更新会重建内核集合**，驱动和部分 kext 需要重新装。
 - **隐私授权不会弹窗**。系统判定「策略不允许弹窗」之后直接拒绝，数据库里因此永远没有记录，设置面板也就是空的。
 - **Secure Boot 必须保持关闭**。EFI 里的引导文件是未签名的，打开就起不来。
+- **AirDrop 靠换 Wi-Fi 驱动才成立**：`ForbiddenItlwm` 提供 AWDL。`IntelBTPatcher` 必须同时禁用，否则两个插件钩同一函数会让 Lilu panic。升级系统前要先去掉 `-btleadv`。
 
 ## 一句话版启动参数
 
@@ -76,6 +77,12 @@ debug=0x100 keepsyms=1 -vi2c-force-polling ctrsmt=full
 nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth
 amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0
 itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
+
+# AirDrop（ForbiddenItlwm）追加 18 项：
+-btleadv -itlawdlcoexprobe -itlawdliface -itlawdlnativeup -itlawdlcoexrx
+-itlawdlcoextx -itlawdlcoexmulti -itlawdlcoexdata -itlawdlmitx -itlawdlelicit
+-itlawdlcaps -itlawdlsvcmerge -itlawdlawsync itlawdlintcoal=4
+-itlawdlcoexbatx -itlawdlcoexpeerpause -itlawdlcoexbatrace itlawdltxqueue=4096
 ```
 
 逐条解释在 [boot-args.md](boot-args.md)，那里会把「验证过是必需的」和「从驱动包里照抄过来的」分开标注。

@@ -1,12 +1,18 @@
 # 启动参数
 
-十四个，按 `boot-args` 里的顺序：
+三十二个。前十四是基础，后十八是 AirDrop 增量，按 `boot-args` 里的顺序：
 
 ```
 debug=0x100 keepsyms=1 -vi2c-force-polling ctrsmt=full
 nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth
 amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0
 itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
+
+# AirDrop（ForbiddenItlwm）追加：
+-btleadv -itlawdlcoexprobe -itlawdliface -itlawdlnativeup -itlawdlcoexrx
+-itlawdlcoextx -itlawdlcoexmulti -itlawdlcoexdata -itlawdlmitx -itlawdlelicit
+-itlawdlcaps -itlawdlsvcmerge -itlawdlawsync itlawdlintcoal=4
+-itlawdlcoexbatx -itlawdlcoexpeerpause -itlawdlcoexbatrace itlawdltxqueue=4096
 ```
 
 它们分成几组，可信度各不相同。有些是拆掉之后看机器坏掉才确认的，有些是从驱动包照抄过来、从没单独验证过。下面标了区别。
@@ -37,7 +43,24 @@ itlwm_he=1 revpatch=sbvmm,cpuname -ibtcompatbeta
 
 `itlwm_he=1` 让 AirportItlwm 声明支持 HE（802.11ax）。网卡在 `Supported PHY Modes` 里报了 ax，但这个参数在实测中没有带来变化——链路仍然以 802.11ac 起来。数据见 [docs/wireless.md](wireless.md)。
 
-`-ibtcompatbeta` 由 `IntelBTPatcher` 读取，不是固件驱动。它开的是 beta 系统的兼容补丁。这个参数是在 26 上蓝牙开始掉设备之后加的，有没有用还没结论：在场、效果未确认。
+`-ibtcompatbeta` 由 `IntelBTPatcher` 读取，不是固件驱动。**当前配置下它是空的**：`IntelBTPatcher` 已禁用以给 `BTLEAdvFixup` 让位，没有程序解析这条参数。留着只为回退时少改一处。
+
+### AirDrop 的 18 个参数
+
+这一组只在 `ForbiddenItlwm` 下有意义。按作者 `docs/BOOT-FLAGS.md` 里的 "tested set" 原样照抄，没有逐条做过移除对比——换句话说，**知道它们各自声称做什么，但不知道哪几条在这台机器上是必需的**。
+
+| 组 | 参数 | 作用 |
+|---|---|---|
+| 接口与监听器 | `-itlawdliface` `-itlawdlcoexprobe` `-itlawdlnativeup` `-itlawdlcoexrx` `-itlawdlcoextx` | 创建 `awdl0`、开第二个固件上下文、放行 macOS 的 AWDL 对等体管理器、收帧、给监听器独立队列 |
+| 共存调度 | `-itlawdlcoexmulti` `itlawdlintcoal=4` `-itlawdlcoexpeerpause` `-itlawdlcoexbatx` `itlawdltxqueue=4096` | 监听器独立信道、缩短中断合并、对端离开时暂停队列、出向 Block Ack、发送队列长度 |
+| 宣告与发现 | `-itlawdlmitx` `-itlawdlelicit` `-itlawdlcaps` `-itlawdlsvcmerge` `-itlawdlawsync` | 发自己的 AWDL 宣告、补齐 Apple 设备期待的字段、上报两空间流与 VHT、合并服务记录、对齐对端可用窗口 |
+| 数据通路 | `-itlawdlcoexdata` `-itlawdlcoexbatrace` | 双向承载 AirDrop 数据；后者只在 I/O Registry 里记 Block Ack 事件，诊断用 |
+| 蓝牙 | `-btleadv` | 打开 `BTLEAdvFixup`，iPhone 才能通过 BLE 发现这台 Mac |
+
+两个后果要记住：
+
+- **升级 macOS 前要去掉 `-btleadv`**，否则增量更新可能失败，见 [docs/updates.md](docs/updates.md)
+- 换回 `AirportItlwm` 时这 18 个应当一并移除。留着不会伤害什么，但它们对 `AirportItlwm` 没有任何作用，只会让配置看起来比实际复杂
 
 ## 更新与 CPU 名
 

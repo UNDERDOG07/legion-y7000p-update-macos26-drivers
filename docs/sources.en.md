@@ -41,7 +41,9 @@ not read them as "an old build".
 | RealtekRTL8111 | 3.0.4 | [Mieze/RTL8111_driver_for_OS_X](https://github.com/Mieze/RTL8111_driver_for_OS_X) v3.0.0 | three revisions ahead |
 | YogaSMC | 1.5.3 | [zhen-zen/YogaSMC](https://github.com/zhen-zen/YogaSMC) 1.5.3 | same |
 | SimpleHDA | 1.0.0 | [laobamac/SimpleHDA](https://github.com/laobamac/SimpleHDA) v1.0.0 | same |
-| AirportItlwm | 2.4.0 | **[laobamac/itlwm](https://github.com/laobamac/itlwm)** `v2.4.0-alpha` | **fork**, see below |
+| AirportItlwm | 2.4.0 | **[laobamac/itlwm](https://github.com/laobamac/itlwm)** `v2.4.0-alpha` | **fork**, currently **disabled** (kept for rollback) |
+| ForbiddenItlwm | 0.4.1-beta1 | **[retropineaple/ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm)** `v0.4.1-beta1` | **fork**, AirDrop; enabled |
+| BTLEAdvFixup | 0.8.3 | same | AirDrop companion; enabled |
 | IntelBluetoothFirmware / IntelBTPatcher | 2.5.0 | **[lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware)** v2.5.0 | **fork**, see below |
 | AMFIPass | 1.4.1 | original `dhinakg/AMFIPass` is 404 | no reachable upstream |
 | XHCI-unsupported | 0.9.2 | RehabMan's repository is gone | no reachable upstream |
@@ -60,16 +62,23 @@ shows a picture is not in there — it lives on the system volume:
 None of the three is in this repository or in the EFI. Install layout and reinstall triggers are in
 [gpu.en.md](gpu.en.md).
 
-## Wi-Fi has to come from a fork
+## Wi-Fi: two forks deep
 
 Upstream [OpenIntelWireless/itlwm](https://github.com/OpenIntelWireless/itlwm) stops at **v2.3.0
 (2024-06)** and does not support macOS 26.
 
-The 2.4.0 on this machine comes from **`v2.4.0-alpha`** in
-[laobamac/itlwm](https://github.com/laobamac/itlwm). It is the same lineage — the bundle identifier is
-still `com.zxystd.AirportItlwm`, and `zxystd` is the OpenIntelWireless maintainer.
+**First layer**: **`v2.4.0-alpha`** in [laobamac/itlwm](https://github.com/laobamac/itlwm) is what makes
+an Intel card work on Tahoe at all. The bundle identifier is still `com.zxystd.AirportItlwm`, and
+`zxystd` is the OpenIntelWireless maintainer — same lineage.
 
-**Downloading 2.3.0 from upstream will not work here.** The Wi-Fi runs on that alpha branch.
+**Second layer**: [retropineaple/ForbiddenItlwm](https://github.com/retropineaple/ForbiddenItlwm) adds
+AWDL, the interface AirDrop runs on, on top of laobamac's **2.4.1**. This machine runs the Tahoe build
+of `v0.4.1-beta1`, which is why the firmware string reads `itlwm: 2.4.1_forbidden`.
+
+The second layer is the one currently active. `AirportItlwm.kext` stays in `Kexts`, disabled, for
+rollback.
+
+**Downloading 2.3.0 from upstream will not work here** — there are two forks in between.
 
 ## Bluetooth, same story
 
